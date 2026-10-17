@@ -147,3 +147,5 @@ test-results/
 playwright-report/
 .vercel/
 .env*
+*.db
+*.db-journal

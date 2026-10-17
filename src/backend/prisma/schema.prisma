@@ -1,0 +1,100 @@
+// Prisma schema for Luma English Platform
+// Node.js handles backend APIs and business logic
+// Prisma ORM manages database access and provides a clear data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  role      String    @default("student") // student, instructor, admin
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  authoredCourses Course[]      @relation("InstructorCourses")
+  enrollments     Enrollment[]
+  progress        LessonProgress[]
+}
+
+model Course {
+  id             String    @id // slug like 'foundations' or uuid
+  title          String
+  description    String
+  level          String    // Cơ bản, Trung cấp, Nâng cao
+  category       String    // Giao tiếp, Đọc hiểu, Nghe, Ngữ pháp, Luyện thi
+  hours          Float     @default(0)
+  lessonsCount   Int       @default(0) // total number of lessons
+  teacher        String    // display name
+  teacherId      String?
+  learners       Int       @default(0)
+  status         String    @default("draft") // draft, published, hidden
+  prerequisiteId String?
+  outcomes       String    @default("[]") // JSON string of outcomes
+  reason         String?   // default recommendation reason
+  art            String?   @default("Book")
+  color          String?   @default("indigo")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  instructor     User?     @relation("InstructorCourses", fields: [teacherId], references: [id])
+  prerequisite   Course?   @relation("CoursePrerequisite", fields: [prerequisiteId], references: [id])
+  dependentCourses Course[] @relation("CoursePrerequisite")
+  lessons        Lesson[]
+  enrollments    Enrollment[]
+}
+
+model Lesson {
+  id         Int       // 1, 2, 3... positional within course
+  courseId   String
+  title      String
+  minutes    Int       @default(15)
+  orderIndex Int       @default(1)
+  body       String?   // lesson content / lecture text
+  videoUrl   String?
+  summary    String?   // downloadable summary note
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  course     Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress   LessonProgress[]
+
+  @@id([courseId, id])
+}
+
+model Enrollment {
+  id         String    @id @default(uuid())
+  userId     String
+  courseId   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model LessonProgress {
+  id          String    @id @default(uuid())
+  userId      String
+  courseId    String
+  lessonId    Int
+  completedAt DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson    @relation(fields: [courseId, lessonId], references: [courseId, id], onDelete: Cascade)
+
+  @@unique([userId, courseId, lessonId])
+}
