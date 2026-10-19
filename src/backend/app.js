@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import { authenticate } from './middleware/auth.js';
 import coursesRouter from './modules/courses/courses.controller.js';
+import enrollmentRouter from './modules/enrollment/enrollment.controller.js';
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(authenticate);
 
-// Health check endpoint
+// Health check endpoint (both /api/health and /health)
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -22,9 +23,21 @@ app.get('/api/health', (req, res) => {
     service: 'Luma English Platform Backend API',
   });
 });
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    service: 'Luma English Platform Backend API',
+  });
+});
 
-// Module 1: Courses & Lessons routes
+// Module 1: Courses & Lessons routes (support both /api and root prefix)
 app.use('/api', coursesRouter);
+app.use('/', coursesRouter);
+
+// Module 2: Enrollment & Progress routes (support both /api and root prefix)
+app.use('/api', enrollmentRouter);
+app.use('/', enrollmentRouter);
 
 // Global 404 handler
 app.use((req, res) => {
@@ -47,6 +60,7 @@ app.use((err, req, res, next) => {
   res.status(status).json({
     success: false,
     message,
+    ...(err.details ? { details: err.details } : {}),
     ...(process.env.NODE_ENV !== 'production' ? { stack: err.stack } : {}),
   });
 });
