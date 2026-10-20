@@ -1,8 +1,16 @@
 // Seed script for Prisma database
-// Imports default courses and lessons matching src/data.js
+// Imports default courses, lessons, questions, and assignments matching src/data.js
 
 import prisma from './db/prisma.js';
-import { initialCourses, initialUsers, getLessons } from '../data.js';
+import {
+  initialCourses,
+  initialUsers,
+  getLessons,
+  quizQuestions,
+  placementQuestions,
+  defaultAssignment,
+  initialSubmissions,
+} from '../data.js';
 
 async function main() {
   console.log('🌱 Starting database seeding...');
@@ -115,6 +123,119 @@ async function main() {
     }
   }
   console.log('✅ Seeded lessons successfully');
+
+  // 5. Seed Questions (Quiz & Placement) with natural IDs
+  await prisma.question.deleteMany({});
+  for (let i = 0; i < quizQuestions.length; i++) {
+    const q = quizQuestions[i];
+    await prisma.question.upsert({
+      where: {
+        type_id: {
+          type: 'lesson_quiz',
+          id: q.id,
+        },
+      },
+      update: {
+        prompt: q.prompt,
+        options: JSON.stringify(q.options),
+        answer: q.answer,
+        explanation: q.explanation,
+        orderIndex: i + 1,
+      },
+      create: {
+        id: q.id,
+        type: 'lesson_quiz',
+        prompt: q.prompt,
+        options: JSON.stringify(q.options),
+        answer: q.answer,
+        explanation: q.explanation,
+        orderIndex: i + 1,
+      },
+    });
+  }
+
+  for (let i = 0; i < placementQuestions.length; i++) {
+    const q = placementQuestions[i];
+    await prisma.question.upsert({
+      where: {
+        type_id: {
+          type: 'placement',
+          id: q.id,
+        },
+      },
+      update: {
+        prompt: q.prompt,
+        options: JSON.stringify(q.options),
+        answer: q.answer,
+        explanation: q.explanation,
+        orderIndex: i + 1,
+      },
+      create: {
+        id: q.id,
+        type: 'placement',
+        prompt: q.prompt,
+        options: JSON.stringify(q.options),
+        answer: q.answer,
+        explanation: q.explanation,
+        orderIndex: i + 1,
+      },
+    });
+  }
+  console.log('✅ Seeded quiz and placement questions successfully');
+
+  // 6. Seed Default Assignment for Foundations
+  const asgId = 'asg-foundations-1';
+  await prisma.assignment.upsert({
+    where: { id: asgId },
+    update: {
+      title: defaultAssignment.title,
+      prompt: defaultAssignment.prompt,
+      due: new Date(defaultAssignment.due),
+    },
+    create: {
+      id: asgId,
+      courseId: 'foundations',
+      title: defaultAssignment.title,
+      prompt: defaultAssignment.prompt,
+      due: new Date(defaultAssignment.due),
+    },
+  });
+  console.log('✅ Seeded assignment successfully');
+
+  // 7. Seed Initial Submissions
+  for (const sub of initialSubmissions) {
+    await prisma.submission.upsert({
+      where: { id: sub.id },
+      update: {
+        assignmentId: asgId,
+        courseId: sub.courseId,
+        studentName: sub.name,
+        title: sub.title,
+        filename: sub.filename,
+        text: sub.text,
+        status: sub.status,
+        score: typeof sub.score === 'number' ? sub.score : null,
+        feedback: sub.feedback || null,
+        submittedAt: new Date(sub.createdAt),
+      },
+      create: {
+        id: sub.id,
+        userId: sub.userId,
+        assignmentId: asgId,
+        courseId: sub.courseId,
+        studentName: sub.name,
+        title: sub.title,
+        filename: sub.filename,
+        text: sub.text,
+        status: sub.status,
+        score: typeof sub.score === 'number' ? sub.score : null,
+        feedback: sub.feedback || null,
+        submittedAt: new Date(sub.createdAt),
+      },
+    });
+  }
+  console.log('✅ Seeded initial submissions successfully');
+
   console.log('🎉 Seeding finished successfully!');
 }
 

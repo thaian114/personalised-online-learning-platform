@@ -16,14 +16,18 @@ model User {
   email     String    @unique
   name      String
   role      String    @default("student") // student, instructor, admin
+  level     String?   @default("A1") // CEFR level: A1, A2, B1, B2
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   // Relations
-  authoredCourses Course[]      @relation("InstructorCourses")
+  authoredCourses Course[]         @relation("InstructorCourses")
   enrollments     Enrollment[]
   progress        LessonProgress[]
+  quizResults     QuizResult[]
+  placementResult PlacementResult?
+  submissions     Submission[]
 }
 
 model Course {
@@ -47,11 +51,13 @@ model Course {
   updatedAt      DateTime  @updatedAt
 
   // Relations
-  instructor     User?     @relation("InstructorCourses", fields: [teacherId], references: [id])
-  prerequisite   Course?   @relation("CoursePrerequisite", fields: [prerequisiteId], references: [id])
-  dependentCourses Course[] @relation("CoursePrerequisite")
-  lessons        Lesson[]
-  enrollments    Enrollment[]
+  instructor       User?        @relation("InstructorCourses", fields: [teacherId], references: [id])
+  prerequisite     Course?      @relation("CoursePrerequisite", fields: [prerequisiteId], references: [id])
+  dependentCourses Course[]     @relation("CoursePrerequisite")
+  lessons          Lesson[]
+  enrollments      Enrollment[]
+  assignments      Assignment[]
+  submissions      Submission[]
 }
 
 model Lesson {
@@ -67,8 +73,9 @@ model Lesson {
   updatedAt  DateTime  @updatedAt
 
   // Relations
-  course     Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course     Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progress   LessonProgress[]
+  quizResult QuizResult[]
 
   @@id([courseId, id])
 }
@@ -97,4 +104,93 @@ model LessonProgress {
   lesson      Lesson    @relation(fields: [courseId, lessonId], references: [courseId, id], onDelete: Cascade)
 
   @@unique([userId, courseId, lessonId])
+}
+
+model Question {
+  id          String
+  type        String   @default("lesson_quiz") // "lesson_quiz", "placement"
+  courseId    String?
+  lessonId    Int?
+  prompt      String
+  options     String   // JSON string of options
+  answer      Int      // 0-based correct index
+  explanation String
+  orderIndex  Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@id([type, id])
+}
+
+model QuizResult {
+  id             String   @id @default(uuid())
+  userId         String
+  courseId       String
+  lessonId       Int
+  score          Float    // 0 - 10
+  percentage     Float    // 0 - 100
+  correctCount   Int
+  totalQuestions Int
+  passed         Boolean  @default(false)
+  answers        String   // JSON string of user answers
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson         Lesson   @relation(fields: [courseId, lessonId], references: [courseId, id], onDelete: Cascade)
+
+  @@unique([userId, courseId, lessonId])
+}
+
+model PlacementResult {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  score          Float
+  percentage     Float
+  correctCount   Int
+  totalQuestions Int      @default(20)
+  level          String   // A1, A2, B1, B2
+  answers        String   // JSON string
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Assignment {
+  id          String       @id // e.g. "default", "asg-foundations"
+  courseId    String
+  title       String
+  prompt      String
+  due         DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id            String      @id @default(uuid())
+  assignmentId  String?
+  courseId      String
+  userId        String
+  studentName   String?
+  title         String
+  filename      String?
+  fileUrl       String?
+  text          String?
+  status        String      @default("pending") // pending, draft, graded
+  score         Float?
+  draftScore    Float?
+  feedback      String?
+  draftFeedback String?
+  late          Boolean     @default(false)
+  submittedAt   DateTime    @default(now())
+  gradedAt      DateTime?
+  updatedAt     DateTime    @updatedAt
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course        Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  assignment    Assignment? @relation(fields: [assignmentId], references: [id])
 }
