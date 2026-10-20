@@ -25,14 +25,14 @@ src/backend/
 ├── prisma/
 │   └── schema.prisma               # Định nghĩa mô hình dữ liệu quan hệ (ERD Schema)
 └── modules/
-    ├── courses/                    # ⭐ MODULE 1: Quản lý Danh mục Khóa học & Bài học
+    ├── courses/                    # MODULE 1: Quản lý Danh mục Khóa học & Bài học
     │   ├── courses.controller.js
     │   ├── courses.service.js
     │   └── courses.validation.js
-    ├── enrollment/                 # ⭐ MODULE 2: Đăng ký học & Theo dõi Tiến độ
+    ├── enrollment/                 # MODULE 2: Đăng ký học & Theo dõi Tiến độ
     │   ├── enrollment.controller.js
     │   └── enrollment.service.js
-    └── assessments/                # ⭐ MODULE 3: Đánh giá, Trắc nghiệm, Placement Test & Chấm bài
+    └── assessments/                # MODULE 3: Đánh giá, Trắc nghiệm, Placement Test & Chấm bài
         ├── assessments.controller.js
         └── assessments.service.js
 ```
@@ -70,7 +70,7 @@ npm run prisma:seed
 ```bash
 node src/backend/server.js
 ```
-👉 Server sẽ chạy tại địa chỉ: **`http://localhost:5000`**
+Server sẽ chạy tại địa chỉ: **`http://localhost:5000`**
 * Kiểm tra trạng thái hoạt động: [http://localhost:5000/api/health](http://localhost:5000/api/health)
 * Xem danh mục khóa học: [http://localhost:5000/api/courses](http://localhost:5000/api/courses)
 
@@ -110,11 +110,11 @@ node --test tests/courses.test.js tests/enrollment.test.js tests/assessments.tes
 
 ## 4. Đặc tả toàn bộ API Endpoints (API Reference)
 
-> 💡 **Tính tương thích URL**: Toàn bộ endpoint của hệ thống đều hỗ trợ đồng thời cả hai dạng đường dẫn: có tiền tố `/api/...` (ví dụ `/api/courses`) hoặc gọi trực tiếp ở gốc `/...` (ví dụ `/courses`).
+Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đều hỗ trợ đồng thời cả hai dạng đường dẫn: có tiền tố `/api/...` (ví dụ `/api/courses`) hoặc gọi trực tiếp ở gốc `/...` (ví dụ `/courses`).
 
 ---
 
-### ⭐ MODULE 1: Khóa học & Bài học (Courses & Lessons)
+### MODULE 1: Khóa học & Bài học (Courses & Lessons)
 
 | Method | Endpoint | Quyền hạn | Mô tả |
 | :--- | :--- | :---: | :--- |
@@ -122,13 +122,13 @@ node --test tests/courses.test.js tests/enrollment.test.js tests/assessments.tes
 | `GET` | `/api/courses/:id` | Public | Lấy chi tiết khóa học, chuẩn đầu ra `outcomes`, thời lượng và đề cương bài học `lessons`. |
 | `GET` | `/api/instructor/courses` | Giảng viên, Admin | Lấy danh sách khóa học do giảng viên phụ trách (kèm số học viên đã đăng ký). |
 | `POST` | `/api/instructor/courses` | Giảng viên, Admin | Tạo khóa học mới (mặc định trạng thái `draft`). Body: `{ title, description, level, category, hours, outcomes, prerequisiteId }`. |
-| `PUT` | `/api/instructor/courses/:id` | Giảng viên, Admin | Chỉnh sửa thông tin, thiết lập khóa tiên quyết (có chống vòng lặp), đổi trạng thái (`draft` ➔ `published`). |
+| `PUT` | `/api/instructor/courses/:id` | Giảng viên, Admin | Chỉnh sửa thông tin, thiết lập khóa tiên quyết (có chống vòng lặp), đổi trạng thái (`draft` sang `published`). |
 | `POST` | `/api/instructor/courses/:id/lessons` | Giảng viên, Admin | Thêm bài học mới vào đề cương (tự động đánh số thứ tự và cập nhật thời lượng khóa). |
 | `PUT` | `/api/instructor/courses/:id/lessons/:lessonId` | Giảng viên, Admin | Sửa tiêu đề bài học, nội dung lý thuyết, cập nhật link video hoặc tài liệu tóm tắt. |
 
 ---
 
-### ⭐ MODULE 2: Đăng ký học & Tiến độ (Enrollment & Progress)
+### MODULE 2: Đăng ký học & Tiến độ (Enrollment & Progress)
 
 | Method | Endpoint | Quyền hạn | Mô tả |
 | :--- | :--- | :---: | :--- |
@@ -140,11 +140,11 @@ node --test tests/courses.test.js tests/enrollment.test.js tests/assessments.tes
 
 ---
 
-### ⭐ MODULE 3: Đánh giá & Chấm điểm (Assessments & Quizzes)
+### MODULE 3: Đánh giá & Chấm điểm (Assessments & Quizzes)
 
 | Method | Endpoint | Quyền hạn | Mô tả |
 | :--- | :--- | :---: | :--- |
-| `GET` | `/api/courses/:id/lessons/:lessonId/quiz` | Public / Học viên | **Bảo mật tuyệt đối**: Lấy câu hỏi trắc nghiệm bài học. Server **loại bỏ hoàn toàn 2 trường `answer` và `explanation`** để chống gian lận F12. |
+| `GET` | `/api/courses/:id/lessons/:lessonId/quiz` | Public / Học viên | **Bảo mật**: Lấy câu hỏi trắc nghiệm bài học. Server **loại bỏ hoàn toàn 2 trường `answer` và `explanation`** để chống gian lận F12. |
 | `POST` | `/api/courses/:id/lessons/:lessonId/quiz/submit` | Học viên | Nộp bài làm trắc nghiệm: Server chấm điểm tự động, lưu vào bảng `QuizResult`, trả về điểm số thang 10, % và lời giải thích chi tiết. |
 | `GET` | `/api/placement/test` | Public / Học viên | Lấy 20 câu hỏi kiểm tra đánh giá năng lực đầu vào (đã loại bỏ đáp án). |
 | `POST` | `/api/placement/submit` | Học viên | Chấm điểm 20 câu, **tự động phân loại trình độ CEFR** (`<40%: A1`, `40-60%: A2`, `60-80%: B1`, `>80%: B2`) và cập nhật trường `level` của User. |
