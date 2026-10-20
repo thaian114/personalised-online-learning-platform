@@ -6,6 +6,7 @@ import cors from 'cors';
 import { authenticate } from './middleware/auth.js';
 import coursesRouter from './modules/courses/courses.controller.js';
 import enrollmentRouter from './modules/enrollment/enrollment.controller.js';
+import assessmentsRouter from './modules/assessments/assessments.controller.js';
 
 const app = express();
 
@@ -38,6 +39,10 @@ app.use('/', coursesRouter);
 // Module 2: Enrollment & Progress routes (support both /api and root prefix)
 app.use('/api', enrollmentRouter);
 app.use('/', enrollmentRouter);
+
+// Module 3: Assessments & Quizzes routes (support both /api and root prefix)
+app.use('/api', assessmentsRouter);
+app.use('/', assessmentsRouter);
 
 // Global 404 handler
 app.use((req, res) => {
