@@ -16,6 +16,7 @@
     "test:courses": "node --test tests/courses.test.js",
     "test:enrollment": "node --test tests/enrollment.test.js",
     "test:assessments": "node --test tests/assessments.test.js",
+    "test:admin": "node --test tests/admin.test.js",
     "test:all": "node --test tests/*.test.js",
     "test:e2e": "playwright test",
     "format": "prettier --write src tests *.js *.json index.html"

@@ -32,9 +32,12 @@ src/backend/
     ├── enrollment/                 # MODULE 2: Đăng ký học & Theo dõi Tiến độ
     │   ├── enrollment.controller.js
     │   └── enrollment.service.js
-    └── assessments/                # MODULE 3: Đánh giá, Trắc nghiệm, Placement Test & Chấm bài
-        ├── assessments.controller.js
-        └── assessments.service.js
+    ├── assessments/                # MODULE 3: Đánh giá, Trắc nghiệm, Placement Test & Chấm bài
+    │   ├── assessments.controller.js
+    │   └── assessments.service.js
+    └── admin/                      # MODULE 4.6: Quản trị & Báo cáo Số liệu Khóa học
+        ├── admin.controller.js
+        └── admin.service.js
 ```
 
 ---
@@ -78,14 +81,14 @@ Server sẽ chạy tại địa chỉ: **`http://localhost:5000`**
 
 ## 3. Hướng dẫn Chạy Kiểm thử Tự động (Automated Testing)
 
-Hệ thống được trang bị bộ test tự động toàn diện gồm **31 bài test** kiểm thử từ Unit test đến Integration test:
+Hệ thống được trang bị bộ test tự động toàn diện gồm **37 bài test** kiểm thử từ Unit test đến Integration test:
 
 ```bash
 # Đảm bảo đang ở trong thư mục dự án:
 cd personalised-online-learning-platform-main
 
-# Chạy toàn bộ 31 bài test trong một lệnh:
-node --test tests/courses.test.js tests/enrollment.test.js tests/assessments.test.js tests/domain.test.js
+# Chạy toàn bộ 37 bài test trong một lệnh:
+npm run test:all
 ```
 
 ### Hoặc chạy kiểm thử riêng từng Module:
@@ -101,7 +104,11 @@ node --test tests/courses.test.js tests/enrollment.test.js tests/assessments.tes
    ```bash
    node --test tests/assessments.test.js
    ```
-4. **Kiểm thử logic miền nghiệp vụ Frontend (4 test cases)**:
+4. **Kiểm thử Module 4.6 (Quản trị & Báo cáo Số liệu Khóa học - 6 test cases)**:
+   ```bash
+   node --test tests/admin.test.js
+   ```
+5. **Kiểm thử logic miền nghiệp vụ Frontend (4 test cases)**:
    ```bash
    node --test tests/domain.test.js
    ```
@@ -154,6 +161,16 @@ Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đ
 
 ---
 
+### MODULE 4.6: Quản trị & Báo cáo Số liệu Khóa học (Admin & Course Statistics)
+
+| Method | Endpoint | Quyền hạn | Mô tả |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/api/admin/courses/stats` | Admin | Báo cáo số liệu tổng quan toàn sàn: tổng khóa học (phân theo published/draft/hidden), tổng bài học, tổng người dùng, tổng lượt đăng ký, tỷ lệ hoàn thành trung bình, kết quả trắc nghiệm và bài tập nộp. Kèm thống kê chi tiết từng khóa học, phân bố theo danh mục và cấp độ. |
+| `GET` | `/api/admin/courses` | Admin | Lấy danh sách khóa học kèm chỉ số người học thực tế (`enrolledCount`), số người đã hoàn thành 100% (`completedLearnersCount`), và tiến độ trung bình (`averageProgress`). |
+| `PUT` | `/api/admin/courses/:id/status` | Admin | Cập nhật nhanh trạng thái hiển thị của khóa học (`published`, `hidden`, `draft`). |
+
+---
+
 ## 5. Các điểm nổi bật về Kỹ nghệ Phần mềm & Bảo mật
 
 1. **Chuẩn hóa tìm kiếm Tiếng Việt không dấu (`normalizeSearch`)**: 
@@ -164,3 +181,5 @@ Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đ
    Đáp án trắc nghiệm không bao giờ được gửi về máy người dùng trước khi nộp bài. Toàn bộ quá trình tính điểm, xếp loại trình độ và đánh giá hạn nộp diễn ra 100% tại Server.
 4. **Header giả lập môi trường Test linh hoạt**:
    Bên cạnh chuẩn JWT Token, hệ thống hỗ trợ header phát triển `x-user-id` và `x-user-role`, giúp việc viết kịch bản kiểm thử tự động diễn ra nhanh chóng và độc lập.
+5. **Thống kê tổng hợp thời gian thực (Real-time Metric Aggregation)**:
+   Tính toán tức thời tỷ lệ hoàn thành (`completionRate`) và tiến độ trung bình (`averageProgress`) trực tiếp từ bảng quan hệ, bảo đảm tính nhất quán dữ liệu cho báo cáo quản trị.

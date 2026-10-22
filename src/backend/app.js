@@ -7,6 +7,7 @@ import { authenticate } from './middleware/auth.js';
 import coursesRouter from './modules/courses/courses.controller.js';
 import enrollmentRouter from './modules/enrollment/enrollment.controller.js';
 import assessmentsRouter from './modules/assessments/assessments.controller.js';
+import adminRouter from './modules/admin/admin.controller.js';
 
 const app = express();
 
@@ -43,6 +44,10 @@ app.use('/', enrollmentRouter);
 // Module 3: Assessments & Quizzes routes (support both /api and root prefix)
 app.use('/api', assessmentsRouter);
 app.use('/', assessmentsRouter);
+
+// Module 4.6: Admin Management & Statistics routes (support both /api and root prefix)
+app.use('/api', adminRouter);
+app.use('/', adminRouter);
 
 // Global 404 handler
 app.use((req, res) => {
