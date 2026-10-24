@@ -183,12 +183,22 @@ test('4. GET /admin/courses - Admin retrieves list of all courses with stats', a
 });
 
 test('5. PUT /admin/courses/:id/status - Admin toggles course visibility', async () => {
-  const coursesRes = await fetch(`${baseUrl}/courses`);
-  const coursesJson = await coursesRes.json();
-  const targetCourse = coursesJson.data[0];
+  const toggleCourseId = `admin-toggle-${Date.now()}`;
+  await prisma.course.create({
+    data: {
+      id: toggleCourseId,
+      title: 'Course to Toggle Status',
+      description: 'Test visibility toggle',
+      level: 'Cơ bản',
+      category: 'Ngữ pháp',
+      teacher: 'Admin Test',
+      status: 'published',
+      lessonsCount: 1,
+    },
+  });
 
   // Admin hides course
-  const hideRes = await fetch(`${baseUrl}/admin/courses/${targetCourse.id}/status`, {
+  const hideRes = await fetch(`${baseUrl}/admin/courses/${toggleCourseId}/status`, {
     method: 'PUT',
     headers: adminHeaders,
     body: JSON.stringify({ status: 'hidden' }),
@@ -200,10 +210,10 @@ test('5. PUT /admin/courses/:id/status - Admin toggles course visibility', async
   // Verify course is hidden from public list
   const publicRes = await fetch(`${baseUrl}/courses`);
   const publicJson = await publicRes.json();
-  assert.equal(publicJson.data.some((c) => c.id === targetCourse.id), false);
+  assert.equal(publicJson.data.some((c) => c.id === toggleCourseId), false);
 
   // Admin restores course to published
-  const restoreRes = await fetch(`${baseUrl}/admin/courses/${targetCourse.id}/status`, {
+  const restoreRes = await fetch(`${baseUrl}/admin/courses/${toggleCourseId}/status`, {
     method: 'PUT',
     headers: adminHeaders,
     body: JSON.stringify({ status: 'published' }),
@@ -211,6 +221,9 @@ test('5. PUT /admin/courses/:id/status - Admin toggles course visibility', async
   const restoreJson = await restoreRes.json();
   assert.equal(restoreRes.status, 200);
   assert.equal(restoreJson.course.status, 'published');
+
+  // Clean up
+  await prisma.course.deleteMany({ where: { id: toggleCourseId } });
 });
 
 test('6. Root URL compatibility: /admin/courses/stats without /api prefix works', async () => {

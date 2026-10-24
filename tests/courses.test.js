@@ -138,7 +138,19 @@ test('6. POST & PUT /api/instructor/courses with valid instructor role', async (
 });
 
 test('7. Lesson CRUD under a course', async () => {
-  const courseId = 'foundations';
+  const courseId = `lesson-crud-${Date.now()}`;
+  await prisma.course.create({
+    data: {
+      id: courseId,
+      title: 'Course for Lesson CRUD',
+      description: 'Temporary course for lesson CRUD test',
+      level: 'Cơ bản',
+      category: 'Ngữ pháp',
+      teacher: 'Linh Trần',
+      status: 'published',
+      lessonsCount: 0,
+    },
+  });
 
   // Add lesson
   const addRes = await fetch(`${baseUrl}/instructor/courses/${courseId}/lessons`, {
@@ -192,4 +204,7 @@ test('7. Lesson CRUD under a course', async () => {
   const delJson = await delRes.json();
   assert.equal(delRes.status, 200);
   assert.equal(delJson.success, true);
+
+  // Clean up
+  await prisma.course.deleteMany({ where: { id: courseId } });
 });
