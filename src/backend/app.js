@@ -8,6 +8,7 @@ import coursesRouter from './modules/courses/courses.controller.js';
 import enrollmentRouter from './modules/enrollment/enrollment.controller.js';
 import assessmentsRouter from './modules/assessments/assessments.controller.js';
 import adminRouter from './modules/admin/admin.controller.js';
+import pathRouter from './modules/path/path.controller.js';
 
 const app = express();
 
@@ -48,6 +49,10 @@ app.use('/', assessmentsRouter);
 // Module 4.6: Admin Management & Statistics routes (support both /api and root prefix)
 app.use('/api', adminRouter);
 app.use('/', adminRouter);
+
+// Module 4: Personalised Learning Paths & Recommendations routes (support both /api and root prefix)
+app.use('/api', pathRouter);
+app.use('/', pathRouter);
 
 // Global 404 handler
 app.use((req, res) => {

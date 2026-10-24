@@ -17,6 +17,7 @@ model User {
   name      String
   role      String    @default("student") // student, instructor, admin
   level     String?   @default("A1") // CEFR level: A1, A2, B1, B2
+  goal      String?   @default("Giao tiếp") // Goal: Giao tiếp, Củng cố nền tảng, Đi làm, Luyện thi
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
