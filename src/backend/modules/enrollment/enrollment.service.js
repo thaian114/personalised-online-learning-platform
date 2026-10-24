@@ -50,30 +50,44 @@ export async function enrollCourse(userId, courseId) {
     });
 
     if (prereqCourse) {
-      const totalPrereqLessons = prereqCourse.lessons.length || prereqCourse.lessonsCount || 0;
+      // Check Placement Test Exemption:
+      // Level B2: exempt from all prerequisites
+      // Level B1: exempt from 'Cơ bản' (foundational) prerequisites
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { level: true },
+      });
+      const userLevel = (user?.level || 'A1').toUpperCase();
+      const isExempt =
+        userLevel === 'B2' ||
+        (userLevel === 'B1' && (!prereqCourse.level || prereqCourse.level === 'Cơ bản'));
 
-      if (totalPrereqLessons > 0) {
-        // Count completed lessons for prerequisite
-        const completedPrereqCount = await prisma.lessonProgress.count({
-          where: {
-            userId,
-            courseId: course.prerequisiteId,
-          },
-        });
+      if (!isExempt) {
+        const totalPrereqLessons = prereqCourse.lessons.length || prereqCourse.lessonsCount || 0;
 
-        // Must complete 100%
-        if (completedPrereqCount < totalPrereqLessons) {
-          const error = new Error('Chưa hoàn thành khóa học tiên quyết');
-          error.status = 400;
-          error.details = {
-            prerequisiteId: course.prerequisiteId,
-            prerequisiteTitle: prereqCourse.title,
-            completedLessons: completedPrereqCount,
-            totalLessons: totalPrereqLessons,
-            currentPercentage: Math.round((completedPrereqCount / totalPrereqLessons) * 100),
-            requiredPercentage: 100,
-          };
-          throw error;
+        if (totalPrereqLessons > 0) {
+          // Count completed lessons for prerequisite
+          const completedPrereqCount = await prisma.lessonProgress.count({
+            where: {
+              userId,
+              courseId: course.prerequisiteId,
+            },
+          });
+
+          // Must complete 100%
+          if (completedPrereqCount < totalPrereqLessons) {
+            const error = new Error('Chưa hoàn thành khóa học tiên quyết');
+            error.status = 400;
+            error.details = {
+              prerequisiteId: course.prerequisiteId,
+              prerequisiteTitle: prereqCourse.title,
+              completedLessons: completedPrereqCount,
+              totalLessons: totalPrereqLessons,
+              currentPercentage: Math.round((completedPrereqCount / totalPrereqLessons) * 100),
+              requiredPercentage: 100,
+            };
+            throw error;
+          }
         }
       }
     }

@@ -272,3 +272,37 @@ test('12. Root URL compatibility: Both /courses/... and /api/courses/... work', 
   });
   assert.equal(res.status, 200);
 });
+
+test('13. 🎓 PLACEMENT EXEMPTION: Student with B1/B2 level bypasses prerequisite and enrolls successfully', async () => {
+  const b2StudentId = `b2-student-${Date.now()}`;
+  await prisma.user.create({
+    data: {
+      id: b2StudentId,
+      name: 'Học viên B2 Nâng cao',
+      email: `${b2StudentId}@example.com`,
+      role: 'student',
+      level: 'B2',
+    },
+  });
+
+  const b2Headers = {
+    'Content-Type': 'application/json',
+    'x-user-id': b2StudentId,
+    'x-user-role': 'student',
+  };
+
+  // Dependent course requires prereqCourseId which is 0% completed for b2Student
+  const res = await fetch(`${baseUrl}/courses/${dependentCourseId}/enroll`, {
+    method: 'POST',
+    headers: b2Headers,
+  });
+  const json = await res.json();
+
+  assert.equal(res.status, 201);
+  assert.equal(json.success, true);
+  assert.equal(json.data.courseId, dependentCourseId);
+
+  // Cleanup
+  await prisma.enrollment.deleteMany({ where: { userId: b2StudentId } });
+  await prisma.user.deleteMany({ where: { id: b2StudentId } });
+});
