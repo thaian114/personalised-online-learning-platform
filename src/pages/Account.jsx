@@ -267,7 +267,11 @@ export function Profile() {
               <Button to="/onboarding/goal" variant="secondary">
                 Cập nhật mục tiêu
               </Button>
-              <Button to="/placement" variant="ghost">
+              <Button
+                to="/placement"
+                variant="ghost"
+                onClick={() => update({ placementDraft: {} })}
+              >
                 Làm lại kiểm tra đầu vào
               </Button>
             </Card>
@@ -442,6 +446,7 @@ export function Goals() {
 }
 
 export function PlacementIntro() {
+  const { update } = useStore();
   return (
     <>
       <Badge>BƯỚC 2 / 3</Badge>
@@ -469,7 +474,12 @@ export function PlacementIntro() {
           Hãy chọn đáp án theo hiểu biết hiện tại. Câu trả lời giúp điều chỉnh lộ trình học của bạn.
         </p>
         <div className="actions">
-          <Button to="/placement/test">Bắt đầu kiểm tra</Button>
+          <Button
+            to="/placement/test"
+            onClick={() => update({ placementDraft: {} })}
+          >
+            Bắt đầu kiểm tra
+          </Button>
           <BackLink to="/onboarding/goal">Đổi mục tiêu</BackLink>
         </div>
       </Card>

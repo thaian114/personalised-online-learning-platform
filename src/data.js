@@ -525,6 +525,7 @@ export function createInitialState() {
     lessonEdits: {},
     questionEdits: {},
     assignmentEdits: {},
+    courseSettings: {},
     discussions: [
       {
         id: 'discussion-1',
@@ -615,11 +616,33 @@ export const defaultAssignment = {
 export function progressOf(course, completed) {
   return Math.min(100, Math.round(((completed[course.id]?.length || 0) / course.lessons) * 100));
 }
-export function canEnroll(course, courses, completed) {
+export function canEnroll(course, courses, completed, learnerContext = null) {
   if (course.status !== 'published') return false;
   if (!course.prerequisite) return true;
   const prerequisite = courses.find((c) => c.id === course.prerequisite);
-  return Boolean(prerequisite && progressOf(prerequisite, completed) === 100);
+  if (prerequisite && progressOf(prerequisite, completed) === 100) return true;
+
+  // Placement Test Exemption:
+  // Extract CEFR level from profile, placement result, or learner state
+  const placement = learnerContext?.placement || (learnerContext?.score !== undefined ? learnerContext : null);
+  const profileLevel = learnerContext?.level || learnerContext?.profile?.level;
+
+  let level = profileLevel ? String(profileLevel).toUpperCase() : null;
+  if (!level && placement) {
+    const pct =
+      placement.percentage !== undefined
+        ? placement.percentage
+        : Math.round((placement.score / (placement.total || 20)) * 100);
+    if (pct > 80) level = 'B2';
+    else if (pct >= 60) level = 'B1';
+    else if (pct >= 40) level = 'A2';
+    else level = 'A1';
+  }
+
+  if (level === 'B2') return true;
+  if (level === 'B1' && (!prerequisite || prerequisite.level === 'Cơ bản')) return true;
+
+  return false;
 }
 // TODO(API_QUIZ): Chấm điểm tại client chỉ phục vụ demo; BE chấm từ đáp án gốc.
 // API đề thi cho học viên không trả answer/explanation trước khi được phép xem kết quả.

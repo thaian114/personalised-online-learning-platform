@@ -31,6 +31,7 @@ function readState() {
       'placementDraft',
       'lessonEdits',
       'questionEdits',
+      'courseSettings',
     ];
     if (
       arrays.some((key) => !Array.isArray(saved[key])) ||

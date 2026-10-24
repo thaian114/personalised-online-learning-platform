@@ -10,6 +10,7 @@ import {
   Field,
   Heading,
   Icon,
+  Metric,
   Modal,
   Notice,
   Progress,
@@ -125,6 +126,9 @@ export function Lesson() {
         };
   const video = files.current.get('video-' + courseId + '-' + lesson.id);
   const done = state.completed[courseId]?.includes(lesson.id);
+  const hasQuiz =
+    state.courseSettings?.[courseId]?.hasQuiz !== false &&
+    state.questionEdits[courseId]?.length !== 0;
   const discussions = state.discussions.filter(
     (item) => item.courseId === courseId && item.lessonId === lesson.id && !item.hidden,
   );
@@ -216,9 +220,15 @@ export function Lesson() {
                 <Button onClick={complete} disabled={done} icon={done ? 'circle-check' : 'check'}>
                   {done ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}
                 </Button>
-                <Button variant="secondary" to={'/quiz/' + courseId + '/' + lesson.id}>
-                  Làm bài kiểm tra
-                </Button>
+                {hasQuiz ? (
+                  <Button variant="secondary" to={'/quiz/' + courseId + '/' + lesson.id}>
+                    Làm bài kiểm tra
+                  </Button>
+                ) : (
+                  <Button variant="secondary" to={'/assignments/' + courseId}>
+                    Làm bài tập viết
+                  </Button>
+                )}
               </div>
               {lesson.id < course.lessons && (
                 <Button to={'/learn/' + courseId + '/' + (lesson.id + 1)} variant="ghost">
@@ -271,13 +281,27 @@ export function Lesson() {
           {tab === 'practice' && (
             <Card>
               <h2>Áp dụng kiến thức</h2>
-              <p>Luyện tập với câu hỏi trắc nghiệm và bài viết về một ngày của bạn.</p>
-              <Button to={'/quiz/' + courseId + '/' + lesson.id}>
-                Làm quiz · {(state.questionEdits[courseId] || quizQuestions).length} câu hỏi
-              </Button>
-              <Button to={'/assignments/' + courseId} variant="secondary">
-                Writing: My daily routine
-              </Button>
+              {hasQuiz ? (
+                <>
+                  <p>Luyện tập với câu hỏi trắc nghiệm và bài tập viết thực hành.</p>
+                  <Button to={'/quiz/' + courseId + '/' + lesson.id}>
+                    Làm quiz · {(state.questionEdits[courseId] || quizQuestions).length} câu hỏi
+                  </Button>
+                  <Button to={'/assignments/' + courseId} variant="secondary">
+                    Writing: {state.assignmentEdits[courseId]?.title || defaultAssignment.title}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p>
+                    Khóa học này tập trung rèn luyện kỹ năng viết qua bài tập tự luận Writing. Hãy làm bài
+                    tập và nộp để nhận phản hồi chi tiết từ giảng viên.
+                  </p>
+                  <Button to={'/assignments/' + courseId}>
+                    Writing: {state.assignmentEdits[courseId]?.title || defaultAssignment.title}
+                  </Button>
+                </>
+              )}
             </Card>
           )}
         </div>
@@ -346,7 +370,18 @@ export function Quiz({ placement = false }) {
   const [confirm, setConfirm] = useState(false);
   const question = questions[index];
   const answered = questions.filter((q) => answers[q.id] !== undefined).length;
-  const course = state.courses.find((c) => c.id === courseId);
+  const hasQuiz =
+    placement ||
+    (state.courseSettings?.[courseId]?.hasQuiz !== false &&
+      state.questionEdits[courseId]?.length !== 0);
+  if (!placement && !hasQuiz)
+    return (
+      <Empty
+        title="Khóa học không có bài kiểm tra trắc nghiệm"
+        description="Khóa học này tập trung đánh giá qua bài tập tự luận Writing."
+        action={<Button to={'/assignments/' + courseId}>Đến bài tập tự luận</Button>}
+      />
+    );
   if (
     !placement &&
     (!course ||
@@ -376,6 +411,16 @@ export function Quiz({ placement = false }) {
   function submit() {
     // TODO(API_QUIZ): Gửi answers theo questionId; nhận attemptId, score, total và quyền xem lời giải.
     // Không gửi score tự tính làm điểm thật; nối cả placement và luồng QuizResult/làm lại.
+    const total = questions.length || 20;
+    const correctCount = scoreAnswers(questions, answers);
+    const percentage = Math.round((correctCount / total) * 100);
+    const score10 = Math.round((correctCount / total) * 10 * 10) / 10;
+    let level = 'A1';
+    if (percentage > 80) level = 'B2';
+    else if (percentage >= 60) level = 'B1';
+    else if (percentage >= 40) level = 'A2';
+    else level = 'A1';
+
     const result = {
       id: crypto.randomUUID(),
       courseId,
@@ -383,13 +428,20 @@ export function Quiz({ placement = false }) {
       title: placement ? 'Kiểm tra đầu vào' : 'Present Simple Quiz',
       answers,
       questions,
-      score: scoreAnswers(questions, answers),
-      total: questions.length,
+      score: correctCount,
+      score10,
+      percentage,
+      level: placement ? level : undefined,
+      total,
       createdAt: new Date().toISOString(),
     };
     update((previous) =>
       placement
-        ? { placement: result }
+        ? {
+            placement: result,
+            placementDraft: {},
+            profile: { ...previous.profile, level },
+          }
         : { quizResults: { ...previous.quizResults, [key]: result } },
     );
     navigate(placement ? '/placement/result' : '/quiz/' + courseId + '/' + lessonId + '/result');
@@ -491,13 +543,34 @@ export function QuizResult({ placement = false }) {
         title="Bạn chưa có kết quả"
         description="Hoàn thành bài kiểm tra để nhận kết quả và giải thích."
         action={
-          <Button to={placement ? '/placement' : '/quiz/' + courseId + '/' + lessonId}>
+          <Button
+            to={placement ? '/placement' : '/quiz/' + courseId + '/' + lessonId}
+            onClick={() => update(placement ? { placementDraft: {} } : {})}
+          >
             Bắt đầu kiểm tra
           </Button>
         }
       />
     );
-  const strong = result.score / result.total >= 0.7;
+  const total = result.total || 20;
+  const correct = result.score;
+  const percentage =
+    result.percentage !== undefined
+      ? result.percentage
+      : Math.round((correct / total) * 100);
+  const score10 =
+    result.score10 !== undefined
+      ? result.score10
+      : Math.round((correct / total) * 10 * 10) / 10;
+  let level = result.level || state.profile?.level;
+  if (!level) {
+    if (percentage > 80) level = 'B2';
+    else if (percentage >= 60) level = 'B1';
+    else if (percentage >= 40) level = 'A2';
+    else level = 'A1';
+  }
+  const strong = placement ? percentage >= 60 : result.score / result.total >= 0.7;
+
   function reset() {
     update((previous) =>
       placement ? { placementDraft: {} } : { quizDrafts: { ...previous.quizDrafts, [key]: {} } },
@@ -506,37 +579,97 @@ export function QuizResult({ placement = false }) {
   return (
     <>
       <Heading
-        title={placement ? 'Điểm bắt đầu của bạn' : 'Bạn đã hoàn thành bài kiểm tra!'}
+        title={placement ? 'Kết quả Đánh giá Năng lực Đầu vào' : 'Bạn đã hoàn thành bài kiểm tra!'}
         description={
           placement
-            ? 'Cùng xây dựng lộ trình từ kết quả hôm nay.'
+            ? 'Kết quả phân loại trình độ CEFR và đề xuất lộ trình học tập cá nhân hóa.'
             : 'Xem lại câu trả lời và tiếp tục tiến bộ.'
         }
       />
+
+      {placement && (
+        <div className="metrics" style={{ marginBottom: '1.5rem' }}>
+          <Metric
+            label="Mức điểm đạt được"
+            value={`${score10} / 10`}
+            note={`${correct} / ${total} câu trả lời đúng`}
+          />
+          <Metric
+            label="Mức độ hoàn thành"
+            value={`${percentage}%`}
+            note={percentage >= 60 ? 'Đạt chuẩn năng lực mục tiêu' : 'Cần củng cố nền tảng thêm'}
+          />
+          <Metric
+            label="Xếp loại trình độ (Level)"
+            value={`CEFR ${level}`}
+            note={
+              level === 'B2'
+                ? 'Trung cao cấp / Nâng cao'
+                : level === 'B1'
+                  ? 'Trung cấp (Miễn tiên quyết)'
+                  : level === 'A2'
+                    ? 'Sơ cấp (Elementary)'
+                    : 'Mới bắt đầu / Căn bản'
+            }
+          />
+        </div>
+      )}
+
       <Card className="result-card">
         <div className="score-circle">
           <strong>
-            {result.score}
-            <span> / {result.total}</span>
+            {placement ? `${percentage}%` : result.score}
+            <span>{placement ? '' : ` / ${result.total}`}</span>
           </strong>
-          <small>Câu trả lời đúng</small>
+          <small>{placement ? 'Mức hoàn thành' : 'Câu trả lời đúng'}</small>
         </div>
         <div>
           <Badge tone={strong ? 'success' : 'primary'}>
-            {strong ? 'NẮM BÀI KHÁ TỐT' : 'TIẾP TỤC CỐ GẮNG'}
+            {placement
+              ? `XẾP LỚP: TRÌNH ĐỘ CEFR ${level}`
+              : strong
+                ? 'NẮM BÀI KHÁ TỐT'
+                : 'TIẾP TỤC CỐ GẮNG'}
           </Badge>
-          <h2>{strong ? 'Bạn đang tiến bộ rất tốt' : 'Củng cố nền tảng'}</h2>
+          <h2>
+            {placement
+              ? level === 'B2'
+                ? 'Xuất sắc! Bạn đạt trình độ B2 (Nâng cao)'
+                : level === 'B1'
+                  ? 'Rất tốt! Bạn đạt trình độ B1 (Trung cấp)'
+                  : level === 'A2'
+                    ? 'Khá tốt! Bạn đạt trình độ A2 (Sơ cấp)'
+                    : 'Điểm khởi đầu! Trình độ A1 (Cơ bản)'
+              : strong
+                ? 'Bạn đang tiến bộ rất tốt'
+                : 'Củng cố nền tảng'}
+          </h2>
           <p>
-            {strong
-              ? 'Bạn đã hiểu các cấu trúc cơ bản. Hãy áp dụng kiến thức vào bài tập thực hành.'
-              : 'Mỗi lần luyện tập giúp bạn hiểu rõ hơn. Xem lại cách chia động từ và thử đặt câu của riêng mình.'}
+            {placement
+              ? level === 'B2'
+                ? `Bạn đạt ${percentage}% mức hoàn thành (${score10}/10 điểm). Với trình độ B2, bạn được tự động mở khóa toàn bộ các khóa học trên hệ thống và miễn toàn bộ điều kiện tiên quyết.`
+                : level === 'B1'
+                  ? `Bạn đạt ${percentage}% mức hoàn thành (${score10}/10 điểm). Với trình độ B1, bạn được tự động miễn điều kiện tiên quyết cấp Cơ bản và có thể bắt đầu học ngay các khóa Trung cấp.`
+                  : level === 'A2'
+                    ? `Bạn đạt ${percentage}% mức hoàn thành (${score10}/10 điểm). Bạn đã có phản xạ ngữ pháp cơ bản. Hệ thống đã chuẩn bị lộ trình phù hợp giúp bạn củng cố kiến thức vững chắc.`
+                    : `Bạn đạt ${percentage}% mức hoàn thành (${score10}/10 điểm). Bạn nên bắt đầu từ khóa học Nền tảng (English Foundations) để xây dựng ngữ pháp và phát âm chuẩn từ đầu.`
+              : strong
+                ? 'Bạn đã hiểu các cấu trúc cơ bản. Hãy áp dụng kiến thức vào bài tập thực hành.'
+                : 'Mỗi lần luyện tập giúp bạn hiểu rõ hơn. Xem lại cách chia động từ và thử đặt câu của riêng mình.'}
           </p>
         </div>
       </Card>
       {placement && (
-        <Notice title="Lộ trình phù hợp đã sẵn sàng" icon="route">
-          Bắt đầu với English Foundations, sau đó luyện giao tiếp hằng ngày. Kết quả này phục vụ
-          trải nghiệm học thử, không thay thế đánh giá chuẩn hóa.
+        <Notice
+          title={`Lộ trình học tập phù hợp với cấp độ CEFR ${level} đã sẵn sàng`}
+          icon="route"
+          tone={level === 'B2' || level === 'B1' ? 'success' : 'primary'}
+        >
+          {level === 'B2'
+            ? 'Hệ thống đã mở khóa toàn bộ các môn học Nâng cao và Luyện thi. Bạn có thể bấm "Xem lộ trình của tôi" để bắt đầu học ngay.'
+            : level === 'B1'
+              ? 'Hệ thống đã mở khóa các môn học Đọc hiểu và Luyện thi nền tảng. Bạn không cần phải học lại khóa ngữ pháp cơ bản.'
+              : 'Bắt đầu với khóa English Foundations để xây chắc nền móng, sau đó tiếp tục với Everyday English.'}
         </Notice>
       )}
       <div className="actions">

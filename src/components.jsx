@@ -319,7 +319,7 @@ export function CourseArt({ course, large = false }) {
 export function CourseCard({ course, enrolled = false }) {
   const { state } = useStore();
   const progress = progressOf(course, state.completed);
-  const locked = !canEnroll(course, state.courses, state.completed);
+  const locked = !canEnroll(course, state.courses, state.completed, state);
   const next =
     getLessons(course).find((lesson) => !state.completed[course.id]?.includes(lesson.id))?.id || 1;
   return (

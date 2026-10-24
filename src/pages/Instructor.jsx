@@ -261,7 +261,9 @@ export function CourseEditor() {
                 </li>
                 <li>
                   <Icon name="clipboard-list" />
-                  {(state.questionEdits[courseId] || quizQuestions).length} câu hỏi luyện tập
+                  {state.courseSettings?.[courseId]?.hasQuiz === false || state.questionEdits[courseId]?.length === 0
+                    ? 'Bài tập tự luận thực hành (Writing)'
+                    : (state.questionEdits[courseId] || quizQuestions).length + ' câu hỏi luyện tập'}
                 </li>
               </ul>
               <Button to={'/instructor/courses/' + courseId + '/lessons'} variant="secondary">
@@ -514,6 +516,8 @@ export function AssessmentEditor() {
   const { courseId } = useParams();
   const { state, update, notify } = useStore();
   const course = state.courses.find((c) => c.id === courseId);
+  const courseSettings = state.courseSettings?.[courseId] || {};
+  const hasQuiz = courseSettings.hasQuiz !== false && state.questionEdits[courseId]?.length !== 0;
   const [questions, setQuestions] = useState(() =>
     structuredClone(state.questionEdits[courseId] || quizQuestions),
   );
@@ -526,7 +530,8 @@ export function AssessmentEditor() {
         action={<Button to="/instructor/courses">Về danh sách</Button>}
       />
     );
-  const question = questions[index];
+  const question = questions[index] || questions[0] || { prompt: '', options: ['', '', '', ''], answer: 0, explanation: '' };
+
   function patch(change) {
     setQuestions((previous) => previous.map((q, i) => (i === index ? { ...q, ...change } : q)));
   }
@@ -541,29 +546,67 @@ export function AssessmentEditor() {
       setError('Điền câu hỏi, bốn đáp án và lời giải trước khi lưu.');
       return;
     }
-    update((previous) => ({ questionEdits: { ...previous.questionEdits, [courseId]: questions } }));
+    update((previous) => ({
+      courseSettings: {
+        ...previous.courseSettings,
+        [courseId]: { ...(previous.courseSettings?.[courseId] || {}), hasQuiz: true },
+      },
+      questionEdits: { ...previous.questionEdits, [courseId]: questions },
+    }));
     setError('');
     notify('Đã lưu ' + questions.length + ' câu hỏi.');
+  }
+  function toggleQuizMode() {
+    const nextHasQuiz = !hasQuiz;
+    update((previous) => ({
+      courseSettings: {
+        ...previous.courseSettings,
+        [courseId]: { ...(previous.courseSettings?.[courseId] || {}), hasQuiz: nextHasQuiz },
+      },
+      questionEdits: {
+        ...previous.questionEdits,
+        [courseId]: nextHasQuiz ? (questions.length ? questions : structuredClone(quizQuestions)) : [],
+      },
+    }));
+    notify(
+      nextHasQuiz
+        ? 'Đã bật chế độ bài tập trắc nghiệm.'
+        : 'Đã chuyển sang chế độ: Chỉ có bài tập tự luận (Writing Task 1).',
+    );
   }
   return (
     <>
       <Heading title="Soạn quiz và bài tập" description={course.title} />
       <EditorNav id={courseId} />
-      <div className="two-column">
-        <Card>
-          <form className="stack" onSubmit={save}>
-            <Field
-              label="Câu hỏi đang chỉnh sửa"
-              as="select"
-              value={index}
-              onChange={(event) => setIndex(Number(event.target.value))}
-            >
-              {questions.map((q, i) => (
-                <option key={q.id} value={i}>
-                  Câu {i + 1}
-                </option>
-              ))}
-            </Field>
+      <div className="subtle-panel split" style={{ marginBottom: '1.5rem', alignItems: 'center' }}>
+        <div>
+          <strong>Hình thức đánh giá khóa học</strong>
+          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+            {hasQuiz
+              ? 'Khóa học đang áp dụng cả Bài tập trắc nghiệm và Bài tập tự luận.'
+              : 'Khóa học này chỉ áp dụng Bài tập tự luận (Writing), không có bài tập trắc nghiệm.'}
+          </p>
+        </div>
+        <Button variant={hasQuiz ? 'secondary' : 'primary'} onClick={toggleQuizMode}>
+          {hasQuiz ? 'Chỉ dùng bài tập tự luận (Tắt Quiz)' : 'Bật lại bài tập trắc nghiệm'}
+        </Button>
+      </div>
+      <div className={hasQuiz ? 'two-column' : 'stack'}>
+        {hasQuiz ? (
+          <Card>
+            <form className="stack" onSubmit={save}>
+              <Field
+                label="Câu hỏi đang chỉnh sửa"
+                as="select"
+                value={index}
+                onChange={(event) => setIndex(Number(event.target.value))}
+              >
+                {questions.map((q, i) => (
+                  <option key={q.id} value={i}>
+                    Câu {i + 1}
+                  </option>
+                ))}
+              </Field>
             <Field
               label="Nội dung câu hỏi"
               as="textarea"
@@ -640,8 +683,9 @@ export function AssessmentEditor() {
             </div>
           </form>
         </Card>
-        <AssignmentEditorCard courseId={courseId} />
-      </div>
+      ) : null}
+      <AssignmentEditorCard courseId={courseId} />
+    </div>
     </>
   );
 }
@@ -649,6 +693,7 @@ export function AssessmentEditor() {
 function AssignmentEditorCard({ courseId }) {
   const { state, update, notify } = useStore();
   const [form, setForm] = useState(state.assignmentEdits[courseId] || defaultAssignment);
+
   function save(event) {
     event.preventDefault();
     if (!form.title.trim() || !form.prompt.trim()) return;

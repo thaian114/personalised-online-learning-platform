@@ -146,7 +146,12 @@ export function LearningPath() {
       <div className="path-list">
         {courses.map((course, index) => {
           const percent = progressOf(course, state.completed);
-          const unlocked = canEnroll(course, state.courses, state.completed);
+          const unlocked = canEnroll(course, state.courses, state.completed, state);
+          const prerequisite = state.courses.find((c) => c.id === course.prerequisite);
+          const isExempt =
+            unlocked &&
+            Boolean(course.prerequisite) &&
+            progressOf(prerequisite, state.completed) < 100;
           return (
             <Card key={course.id} className={'path-step ' + (unlocked ? '' : 'path-locked')}>
               <span className="path-number">
@@ -160,9 +165,11 @@ export function LearningPath() {
                       ? 'Hoàn thành'
                       : !unlocked
                         ? 'Chưa mở khóa'
-                        : state.enrolled.includes(course.id)
-                          ? 'Đang học'
-                          : 'Sẵn sàng'}
+                        : isExempt
+                          ? 'Miễn tiên quyết'
+                          : state.enrolled.includes(course.id)
+                            ? 'Đang học'
+                            : 'Sẵn sàng'}
                   </Badge>
                 </div>
                 <p>{course.description}</p>
@@ -170,9 +177,13 @@ export function LearningPath() {
                   <small className="inline-icon">
                     <Icon name="lock-keyhole" />
                     Hoàn thành{' '}
-                    {state.courses.find((c) => c.id === course.prerequisite)?.title ||
-                      'kiến thức tiên quyết'}{' '}
+                    {prerequisite?.title || 'kiến thức tiên quyết'}{' '}
                     để mở khóa.
+                  </small>
+                ) : isExempt ? (
+                  <small className="inline-icon" style={{ color: 'var(--color-primary, #2563eb)' }}>
+                    <Icon name="check" />
+                    Được mở khóa nhờ đạt điểm cao trong bài kiểm tra đầu vào.
                   </small>
                 ) : (
                   <Progress value={percent} label="Tiến độ" />
@@ -371,7 +382,10 @@ export function CourseDetail() {
       />
     );
   const enrolled = state.enrolled.includes(courseId);
-  const allowed = canEnroll(course, state.courses, state.completed);
+  const allowed = canEnroll(course, state.courses, state.completed, state);
+  const hasQuiz =
+    state.courseSettings?.[courseId]?.hasQuiz !== false &&
+    state.questionEdits[courseId]?.length !== 0;
   const prerequisite = state.courses.find((c) => c.id === course.prerequisite);
   const next = getLessons(course).find((l) => !state.completed[course.id]?.includes(l.id))?.id || 1;
   function enroll() {
@@ -413,7 +427,7 @@ export function CourseDetail() {
           <p>
             {course.lessons} bài học · {course.hours} giờ nội dung
             <br />
-            Quiz và bài tập thực hành
+            {hasQuiz ? 'Quiz và bài tập thực hành' : 'Bài tập tự luận thực hành (Writing Task 1)'}
             <br />
             Giảng viên: {course.teacher}
           </p>
@@ -426,7 +440,12 @@ export function CourseDetail() {
             icon={allowed ? 'circle-check' : 'lock-keyhole'}
           >
             {prerequisite
-              ? prerequisite.title + (allowed ? ' đã hoàn thành.' : ' cần đạt 100% tiến độ.')
+              ? prerequisite.title +
+                (allowed
+                  ? progressOf(prerequisite, state.completed) === 100
+                    ? ' đã hoàn thành.'
+                    : ' (Được miễn điều kiện tiên quyết nhờ điểm kiểm tra đầu vào).'
+                  : ' cần đạt 100% tiến độ.')
               : 'Khóa học này không yêu cầu kiến thức tiên quyết.'}
           </Notice>
           {enrolled ? (
