@@ -13,6 +13,7 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test tests/domain.test.js",
+    "test:users": "node --test tests/users.test.js",
     "test:courses": "node --test tests/courses.test.js",
     "test:enrollment": "node --test tests/enrollment.test.js",
     "test:assessments": "node --test tests/assessments.test.js",
