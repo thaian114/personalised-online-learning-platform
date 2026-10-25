@@ -3,6 +3,7 @@
 
 import prisma from './db/prisma.js';
 import {
+  goals,
   initialCourses,
   initialUsers,
   getLessons,
@@ -10,6 +11,7 @@ import {
   placementQuestions,
   defaultAssignment,
   initialSubmissions,
+  createInitialState,
 } from '../data.js';
 
 async function main() {
@@ -23,12 +25,18 @@ async function main() {
         name: user.name,
         role: user.role,
         active: user.active ?? true,
+        goal: user.goal || goals[0],
+        dailyMinutes: user.dailyMinutes || 20,
       },
       create: {
         id: user.id,
         email: user.email,
         name: user.name,
+        password: 'Demo@123',
         role: user.role,
+        level: 'A1',
+        goal: user.goal || goals[0],
+        dailyMinutes: user.dailyMinutes || 20,
         active: user.active ?? true,
       },
     });
@@ -235,6 +243,30 @@ async function main() {
     });
   }
   console.log('✅ Seeded initial submissions successfully');
+
+  // 8. Seed Initial Notifications
+  const initialState = createInitialState();
+  for (const notif of initialState.notifications || []) {
+    await prisma.notification.upsert({
+      where: { id: notif.id },
+      update: {
+        userId: notif.userId,
+        title: notif.title,
+        body: notif.body,
+        to: notif.to || '/dashboard',
+        read: Boolean(notif.read),
+      },
+      create: {
+        id: notif.id,
+        userId: notif.userId,
+        title: notif.title,
+        body: notif.body,
+        to: notif.to || '/dashboard',
+        read: Boolean(notif.read),
+      },
+    });
+  }
+  console.log('✅ Seeded initial notifications successfully');
 
   console.log('🎉 Seeding finished successfully!');
 }

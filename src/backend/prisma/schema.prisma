@@ -15,12 +15,14 @@ model User {
   id        String    @id @default(uuid())
   email     String    @unique
   name      String
-  role      String    @default("student") // student, instructor, admin
-  level     String?   @default("A1") // CEFR level: A1, A2, B1, B2
-  goal      String?   @default("Giao tiếp") // Goal: Giao tiếp, Củng cố nền tảng, Đi làm, Luyện thi
-  active    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  password     String?   @default("Demo@123")
+  role         String    @default("student") // student, instructor, admin
+  level        String?   @default("A1") // CEFR level: A1, A2, B1, B2
+  goal         String?   @default("Củng cố nền tảng")
+  dailyMinutes Int       @default(20)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
   authoredCourses Course[]         @relation("InstructorCourses")
@@ -29,6 +31,7 @@ model User {
   quizResults     QuizResult[]
   placementResult PlacementResult?
   submissions     Submission[]
+  notifications   Notification[]
 }
 
 model Course {
@@ -194,4 +197,17 @@ model Submission {
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   course        Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   assignment    Assignment? @relation(fields: [assignmentId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  to        String   @default("/dashboard")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
