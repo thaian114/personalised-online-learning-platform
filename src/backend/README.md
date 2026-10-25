@@ -27,23 +27,27 @@ src/backend/
 ├── prisma/
 │   └── schema.prisma               # Định nghĩa mô hình dữ liệu quan hệ (ERD Schema)
 └── modules/
-    ├── courses/                    # MODULE 1: Quản lý Danh mục Khóa học & Bài học
+    ├── users/                      # MODULE 1: Xác thực, Hồ sơ, Thông báo & Quản trị Người dùng
+    │   ├── users.controller.js
+    │   ├── users.service.js
+    │   └── users.validation.js
+    ├── courses/                    # MODULE 2: Quản lý Danh mục Khóa học & Bài học
     │   ├── courses.controller.js
     │   ├── courses.service.js
     │   └── courses.validation.js
-    ├── enrollment/                 # MODULE 2: Đăng ký học & Theo dõi Tiến độ
+    ├── enrollment/                 # MODULE 3: Đăng ký học & Theo dõi Tiến độ
     │   ├── enrollment.controller.js
     │   └── enrollment.service.js
-    ├── assessments/                # MODULE 3: Đánh giá, Trắc nghiệm, Placement Test & Chấm bài
+    ├── assessments/                # MODULE 4: Đánh giá, Trắc nghiệm, Placement Test & Chấm bài
     │   ├── assessments.controller.js
     │   └── assessments.service.js
-    ├── admin/                      # MODULE 4.6: Quản trị & Báo cáo Số liệu Khóa học
-    │   ├── admin.controller.js
-    │   └── admin.service.js
-    └── path/                       # MODULE 4: Thành phần Nâng cao (Lộ trình DAG & Gợi ý học tập)
-        ├── path.service.js
-        ├── recommendation.service.js
-        └── path.controller.js
+    ├── path/                       # MODULE 5: Thành phần Nâng cao (Lộ trình DAG & Gợi ý học tập)
+    │   ├── path.service.js
+    │   ├── recommendation.service.js
+    │   └── path.controller.js
+    └── admin/                      # MODULE 6: Quản trị & Báo cáo Số liệu Khóa học
+        ├── admin.controller.js
+        └── admin.service.js
 ```
 
 ---
@@ -99,39 +103,43 @@ Server sẽ chạy tại địa chỉ: **`http://localhost:5000`**
 
 ## 3. Hướng dẫn Chạy Kiểm thử Tự động (Automated Testing)
 
-Hệ thống được trang bị bộ test tự động toàn diện gồm **46 bài test** kiểm thử từ Unit test đến Integration test:
+Hệ thống được trang bị bộ test tự động toàn diện gồm **53 bài test** kiểm thử từ Unit test đến Integration test:
 
 ```bash
 # Đảm bảo đang ở trong thư mục dự án:
 cd personalised-online-learning-platform-main
 
-# Chạy toàn bộ 46 bài test trong một lệnh:
+# Chạy toàn bộ 53 bài test trong một lệnh:
 npm run test:all
 ```
 
 ### Hoặc chạy kiểm thử riêng từng Module:
 
-1. **Kiểm thử Module 1 (Khóa học & Bài học - 7 test cases)**:
+1. **Kiểm thử Module 1 (Người dùng, Xác thực & Phân quyền - 7 test cases)**:
+   ```bash
+   node --test tests/users.test.js
+   ```
+2. **Kiểm thử Module 2 (Khóa học & Bài học - 7 test cases)**:
    ```bash
    node --test tests/courses.test.js
    ```
-2. **Kiểm thử Module 2 (Đăng ký học & Tiến độ - 13 test cases)**:
+3. **Kiểm thử Module 3 (Đăng ký học & Tiến độ - 13 test cases)**:
    ```bash
    node --test tests/enrollment.test.js
    ```
-3. **Kiểm thử Module 3 (Đánh giá, Trắc nghiệm & Chấm điểm - 8 test cases)**:
+4. **Kiểm thử Module 4 (Đánh giá, Trắc nghiệm & Chấm điểm - 8 test cases)**:
    ```bash
    node --test tests/assessments.test.js
    ```
-4. **Kiểm thử Module 4 (Thành phần nâng cao: Lộ trình DAG & Gợi ý - 8 test cases)**:
+5. **Kiểm thử Module 5 (Thành phần nâng cao: Lộ trình DAG & Gợi ý - 8 test cases)**:
    ```bash
    node --test tests/path.test.js
    ```
-5. **Kiểm thử Module 4.6 (Quản trị & Báo cáo Số liệu Khóa học - 6 test cases)**:
+6. **Kiểm thử Module 6 (Quản trị & Báo cáo Số liệu Khóa học - 6 test cases)**:
    ```bash
    node --test tests/admin.test.js
    ```
-6. **Kiểm thử logic miền nghiệp vụ Frontend (4 test cases)**:
+7. **Kiểm thử logic miền nghiệp vụ Frontend (4 test cases)**:
    ```bash
    node --test tests/domain.test.js
    ```
@@ -142,9 +150,28 @@ npm run test:all
 
 Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đều hỗ trợ đồng thời cả hai dạng đường dẫn: có tiền tố `/api/...` (ví dụ `/api/courses`) hoặc gọi trực tiếp ở gốc `/...` (ví dụ `/courses`).
 
+### MODULE 1: Người dùng, Xác thực & Hồ sơ (Users, Authentication & Profile)
+
+| Method | Endpoint | Quyền hạn | Mô tả |
+| :----- | :------- | :-------: | :---- |
+| `POST` | `/api/auth/register` | Public | Đăng ký tài khoản học viên mới. Validate độ dài mật khẩu (>= 8 ký tự), khớp mật khẩu xác nhận, kiểm tra trùng email (409 Conflict). Băm mật khẩu bằng `scrypt` kèm salt 16 bytes. Tự động tạo thông báo chào mừng. |
+| `POST` | `/api/auth/login` | Public | Đăng nhập bằng email và mật khẩu. Xác thực an toàn bằng `crypto.timingSafeEqual`. Trả về JWT Bearer Token và session người dùng. Chặn tài khoản tạm khóa (`active = false`, trả về 403 Forbidden). |
+| `POST` | `/api/auth/demo` | Public | Đăng nhập nhanh theo vai trò (`student`, `instructor`, `admin`) phục vụ chấm điểm và chạy thử nghiệm. |
+| `POST` | `/api/auth/logout` | Public | Đăng xuất phiên làm việc hiện tại. |
+| `GET` | `/api/auth/me` | Học viên, Giảng viên, Admin | Lấy thông tin phiên đăng nhập hiện tại từ Bearer Token (`req.user`). |
+| `GET` | `/api/me/profile` | Học viên, Giảng viên, Admin | Lấy hồ sơ cá nhân và kết quả kiểm tra đầu vào (nếu có). |
+| `PUT`, `PATCH` | `/api/me/profile` | Học viên, Giảng viên, Admin | Cập nhật hồ sơ cá nhân (họ tên, email, mục tiêu, số phút học hàng ngày `dailyMinutes`). Kiểm tra mốc học hợp lệ và kiểm tra trùng email. Tự động đồng bộ tên mới lên các khóa học nếu là giảng viên. |
+| `PUT`, `PATCH` | `/api/me/goal` | Học viên | Cập nhật mục tiêu học tập (`goal`) và thời lượng học hàng ngày trong luồng Onboarding. |
+| `GET` | `/api/me/notifications` | Học viên, Giảng viên, Admin | Lấy danh sách thông báo cá nhân sắp xếp theo thời gian mới nhất, kèm số lượng thông báo chưa đọc (`unreadCount`). |
+| `PUT`, `PATCH` | `/api/me/notifications/:id/read` | Học viên, Giảng viên, Admin | Đánh dấu một thông báo cụ thể là đã đọc. |
+| `PUT`, `PATCH` | `/api/me/notifications/read-all` | Học viên, Giảng viên, Admin | Đánh dấu tất cả thông báo của người dùng là đã đọc. |
+| `GET` | `/api/admin/users` | Admin | Quản trị viên lấy danh sách toàn bộ người dùng. Hỗ trợ tìm kiếm tiếng Việt không dấu (`?q=`, `?search=`), lọc theo vai trò (`?role=`), lọc trạng thái khóa (`?status=locked`), và phân trang (`?page=`, `?limit=`). |
+| `GET` | `/api/admin/users/:id` | Admin | Xem chi tiết thông tin tài khoản người dùng, danh sách khóa học đã đăng ký, kết quả placement và số liệu bài làm. |
+| `PUT`, `PATCH` | `/api/admin/users/:id` | Admin | Quản trị viên cập nhật vai trò hoặc Khóa/Mở khóa tài khoản (`active: boolean`). Áp dụng 2 cơ chế bảo vệ: Không cho phép tự khóa chính mình và bắt buộc giữ lại ít nhất một Admin hoạt động. |
+
 ---
 
-### MODULE 1: Khóa học & Bài học (Courses & Lessons)
+### MODULE 2: Khóa học & Bài học (Courses & Lessons)
 
 | Method | Endpoint                                        |     Quyền hạn     | Mô tả                                                                                                                                            |
 | :----- | :---------------------------------------------- | :---------------: | :----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -158,7 +185,7 @@ Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đ
 
 ---
 
-### MODULE 2: Đăng ký học & Tiến độ (Enrollment & Progress)
+### MODULE 3: Đăng ký học & Tiến độ (Enrollment & Progress)
 
 | Method   | Endpoint                                      | Quyền hạn | Mô tả                                                                                                                                                                                                           |
 | :------- | :-------------------------------------------- | :-------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -170,7 +197,7 @@ Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đ
 
 ---
 
-### MODULE 3: Đánh giá & Chấm điểm (Assessments & Quizzes)
+### MODULE 4: Đánh giá & Chấm điểm (Assessments & Quizzes)
 
 | Method | Endpoint                                            |     Quyền hạn     | Mô tả                                                                                                                                           |
 | :----- | :-------------------------------------------------- | :---------------: | :---------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -184,7 +211,7 @@ Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đ
 
 ---
 
-### MODULE 4: Thành phần Nâng cao — Lộ trình Đồ thị DAG & Gợi ý Cá nhân hóa (Advanced Component)
+### MODULE 5: Thành phần Nâng cao — Lộ trình Đồ thị DAG & Gợi ý Cá nhân hóa (Advanced Component)
 
 | Method | Endpoint                         |   Quyền hạn    | Mô tả                                                                                                                                                                                                                                                                                                                                                                                             |
 | :----- | :------------------------------- | :------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -195,7 +222,7 @@ Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đ
 
 ---
 
-### MODULE 4.6: Quản trị & Báo cáo Số liệu Khóa học (Admin & Course Statistics)
+### MODULE 6: Quản trị & Báo cáo Số liệu Khóa học (Admin & Course Statistics)
 
 | Method | Endpoint                        | Quyền hạn | Mô tả                                                                                                                                                                                                                                                                          |
 | :----- | :------------------------------ | :-------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -221,3 +248,9 @@ Lưu ý về tính tương thích URL: Toàn bộ endpoint của hệ thống đ
    Giải thuật Kahn sắp xếp thứ tự tiên quyết không chu trình, kết hợp mô hình chấm điểm 4 trọng số và chuỗi giải thích tự nhiên minh bạch, có đối chuẩn định lượng với Baseline theo chuẩn Rubric Bách Khoa.
 7. **Cơ chế Mở khóa Thích ứng theo Năng lực đầu vào (Adaptive Placement Exemption)**:
    Người học đạt điểm cao trong bài kiểm tra phân loại đầu vào (B1 đạt từ 60%, B2 đạt trên 80%) được tự động miễn điều kiện tiên quyết nền tảng, mở khóa ngay các khóa học Trung cấp và Nâng cao tương ứng trên cả giao diện và API đăng ký học.
+8. **Bảo mật mật khẩu Scrypt & Chống tấn công Timing Attack (`timingSafeEqual`)**:
+   Sử dụng giải thuật băm mật khẩu `scrypt` kèm salt ngẫu nhiên 16 bytes từ thư viện lõi `node:crypto`. Quá trình xác thực mật khẩu sử dụng `crypto.timingSafeEqual` để so sánh chuỗi băm trong thời gian hằng số, triệt tiêu hoàn toàn rủi ro tấn công dò thời gian (Timing Attacks).
+9. **Cơ chế An toàn Quản trị viên (Self-lockout & Last Active Admin Protection)**:
+   Hệ thống thiết lập 2 tầng bảo vệ: không cho phép Admin đang đăng nhập tự khóa tài khoản hoặc tự hạ quyền chính mình, đồng thời kiểm tra số lượng Admin hoạt động để đảm bảo luôn có ít nhất một Quản trị viên điều hành sàn.
+10. **Tự động Đồng bộ Dữ liệu Giảng viên xuyên suốt Hệ thống**:
+    Khi giảng viên cập nhật họ tên trong hồ sơ cá nhân, hệ thống tự động đồng bộ tên mới lên toàn bộ các khóa học đang đứng lớp trong cơ sở dữ liệu.
