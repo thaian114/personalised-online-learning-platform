@@ -144,6 +144,26 @@ export async function submitLessonQuiz(userId, courseId, lessonId, answers = {})
     },
   });
 
+  // Automatically mark lesson as completed if passed (>= 70%)
+  if (passed) {
+    await prisma.lessonProgress.upsert({
+      where: {
+        userId_courseId_lessonId: {
+          userId,
+          courseId,
+          lessonId: numLessonId,
+        },
+      },
+      update: { completedAt: new Date() },
+      create: {
+        userId,
+        courseId,
+        lessonId: numLessonId,
+        completedAt: new Date(),
+      },
+    });
+  }
+
   return {
     courseId,
     lessonId: numLessonId,

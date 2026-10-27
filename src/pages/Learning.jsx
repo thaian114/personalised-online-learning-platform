@@ -125,7 +125,25 @@ export function Lesson() {
           ],
         };
   const video = files.current.get('video-' + courseId + '-' + lesson.id);
-  const done = state.completed[courseId]?.includes(lesson.id);
+  const quizResult = state.quizResults[courseId + '-' + lesson.id];
+  const quizPassed =
+    quizResult &&
+    (quizResult.percentage >= 70 || quizResult.score / (quizResult.total || 10) >= 0.7);
+  const done = state.completed[courseId]?.includes(lesson.id) || Boolean(quizPassed);
+
+  useEffect(() => {
+    if (quizPassed && !state.completed[courseId]?.includes(lesson.id)) {
+      update((previous) => ({
+        completed: {
+          ...previous.completed,
+          [courseId]: [...new Set([...(previous.completed[courseId] || []), lesson.id])].sort(
+            (a, b) => a - b,
+          ),
+        },
+      }));
+    }
+  }, [quizPassed, courseId, lesson.id, state.completed, update]);
+
   const hasQuiz =
     state.courseSettings?.[courseId]?.hasQuiz !== false &&
     state.questionEdits[courseId]?.length !== 0;
@@ -364,6 +382,7 @@ export function Quiz({ placement = false }) {
   const { state, update, notify } = useStore();
   const navigate = useNavigate();
   const key = courseId + '-' + lessonId;
+  const course = state.courses.find((c) => c.id === courseId);
   const questions = placement ? placementQuestions : state.questionEdits[courseId] || quizQuestions;
   const answers = placement ? state.placementDraft : state.quizDrafts[key] || {};
   const [index, setIndex] = useState(0);
@@ -394,6 +413,16 @@ export function Quiz({ placement = false }) {
         title="Bài kiểm tra chưa sẵn sàng"
         description="Chọn bài học trong khóa đã đăng ký để luyện tập."
         action={<Button to="/my-courses">Khóa học của tôi</Button>}
+      />
+    );
+  if (!question)
+    return (
+      <Empty
+        title="Chưa có câu hỏi kiểm tra"
+        description="Bài kiểm tra hiện chưa có câu hỏi nào."
+        action={
+          <Button to={placement ? '/placement' : `/learn/${courseId}/${lessonId}`}>Quay lại</Button>
+        }
       />
     );
   function select(value) {
@@ -435,24 +464,47 @@ export function Quiz({ placement = false }) {
       total,
       createdAt: new Date().toISOString(),
     };
-    update((previous) =>
-      placement
+
+    const passed = percentage >= 70;
+    const numLessonId = Number(lessonId);
+
+    update((previous) => {
+      const nextCompleted =
+        !placement && passed && numLessonId > 0
+          ? {
+              ...previous.completed,
+              [courseId]: [
+                ...new Set([...(previous.completed[courseId] || []), numLessonId]),
+              ].sort((a, b) => a - b),
+            }
+          : previous.completed;
+
+      return placement
         ? {
             placement: result,
             placementDraft: {},
             profile: { ...previous.profile, level },
           }
-        : { quizResults: { ...previous.quizResults, [key]: result } },
-    );
+        : {
+            quizResults: { ...previous.quizResults, [key]: result },
+            completed: nextCompleted,
+          };
+    });
     navigate(placement ? '/placement/result' : '/quiz/' + courseId + '/' + lessonId + '/result');
-    notify('Đã nộp bài và lưu kết quả của bạn.');
+    notify(
+      !placement && passed
+        ? 'Đã nộp bài, đạt yêu cầu và tự động hoàn thành bài học!'
+        : 'Đã nộp bài và lưu kết quả của bạn.',
+    );
   }
   return (
     <>
       <Heading
         title={placement ? 'Kiểm tra đầu vào' : 'Luyện tập: Present Simple'}
         description={
-          placement ? 'Cùng tìm điểm bắt đầu phù hợp với bạn.' : course.title + ' · Bài ' + lessonId
+          placement
+            ? 'Cùng tìm điểm bắt đầu phù hợp với bạn.'
+            : (course?.title || '') + ' · Bài ' + lessonId
         }
       />
       <Progress
@@ -570,6 +622,22 @@ export function QuizResult({ placement = false }) {
     else level = 'A1';
   }
   const strong = placement ? percentage >= 60 : result.score / result.total >= 0.7;
+
+  useEffect(() => {
+    if (!placement && strong && lessonId) {
+      const numLessonId = Number(lessonId);
+      if (numLessonId > 0 && !state.completed[courseId]?.includes(numLessonId)) {
+        update((previous) => ({
+          completed: {
+            ...previous.completed,
+            [courseId]: [
+              ...new Set([...(previous.completed[courseId] || []), numLessonId]),
+            ].sort((a, b) => a - b),
+          },
+        }));
+      }
+    }
+  }, [placement, strong, courseId, lessonId, state.completed, update]);
 
   function reset() {
     update((previous) =>

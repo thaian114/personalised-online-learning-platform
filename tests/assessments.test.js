@@ -59,6 +59,7 @@ test.before(async () => {
 test.after(async () => {
   try {
     await prisma.quizResult.deleteMany({ where: { userId: testStudentId } });
+    await prisma.lessonProgress.deleteMany({ where: { userId: testStudentId } });
     await prisma.placementResult.deleteMany({ where: { userId: testStudentId } });
     await prisma.submission.deleteMany({ where: { userId: testStudentId } });
     await prisma.user.deleteMany({
