@@ -21,6 +21,10 @@ export function buildDAGAndTopologicalOrder(courses) {
 
   // Build edges: prerequisite -> dependent
   for (const c of courses) {
+    // Skip self-loop (if any) to avoid cycles
+    if (c.prerequisiteId && c.prerequisiteId === c.id) {
+      continue;
+    }
     if (c.prerequisiteId && inDegrees.has(c.prerequisiteId)) {
       adjList.get(c.prerequisiteId).push(c.id);
       inDegrees.set(c.id, (inDegrees.get(c.id) || 0) + 1);
