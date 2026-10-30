@@ -29,6 +29,7 @@ import {
 import { useFormError, useStore } from '../store';
 import { FormError } from '../feedback';
 import { LessonOutline } from './Student';
+import { getLessonContent } from '../course-content';
 
 function LessonSlides({ lesson, copy }) {
   const [slide, setSlide] = useState(0);
@@ -112,7 +113,8 @@ export function Lesson() {
     );
   const edited = state.lessonEdits[courseId + '-' + lesson.id];
   const copy =
-    course.id === 'foundations' && lessonCopy[lesson.id]
+    getLessonContent(courseId, lesson.id) ||
+    (course.id === 'foundations' && lessonCopy[lesson.id]
       ? lessonCopy[lesson.id]
       : {
           en: lesson.title,
@@ -123,7 +125,7 @@ export function Lesson() {
             'I practise English with my friends.',
             'What did you learn today?',
           ],
-        };
+        });
   const video = files.current.get('video-' + courseId + '-' + lesson.id);
   const quizResult = state.quizResults[courseId + '-' + lesson.id];
   const quizPassed =
@@ -229,11 +231,29 @@ export function Lesson() {
                 <Icon name="arrow-right" />
               </button>
               <p className="pre-line">{edited?.body || copy.body}</p>
+              {copy.objectives && (
+                <ul>
+                  {copy.objectives.map((objective) => (
+                    <li key={objective}>{objective}</li>
+                  ))}
+                </ul>
+              )}
               <ul className="example-list">
                 {copy.examples.map((text) => (
                   <li key={text}>{text}</li>
                 ))}
               </ul>
+              {copy.practice && (
+                <p>
+                  <strong>Practice: </strong>
+                  {copy.practice}
+                </p>
+              )}
+              {copy.worksheet && (
+                <a className="document-link" href={copy.worksheet} target="_blank" rel="noreferrer">
+                  Open printable worksheet and answer key
+                </a>
+              )}
               <div className="actions">
                 <Button onClick={complete} disabled={done} icon={done ? 'circle-check' : 'check'}>
                   {done ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}
@@ -312,8 +332,8 @@ export function Lesson() {
               ) : (
                 <>
                   <p>
-                    Khóa học này tập trung rèn luyện kỹ năng viết qua bài tập tự luận Writing. Hãy làm bài
-                    tập và nộp để nhận phản hồi chi tiết từ giảng viên.
+                    Khóa học này tập trung rèn luyện kỹ năng viết qua bài tập tự luận Writing. Hãy
+                    làm bài tập và nộp để nhận phản hồi chi tiết từ giảng viên.
                   </p>
                   <Button to={'/assignments/' + courseId}>
                     Writing: {state.assignmentEdits[courseId]?.title || defaultAssignment.title}
@@ -383,7 +403,11 @@ export function Quiz({ placement = false }) {
   const navigate = useNavigate();
   const key = courseId + '-' + lessonId;
   const course = state.courses.find((c) => c.id === courseId);
-  const questions = placement ? placementQuestions : state.questionEdits[courseId] || quizQuestions;
+  const questions = placement
+    ? placementQuestions
+    : state.questionEdits[courseId] ||
+      getLessonContent(courseId, Number(lessonId))?.questions ||
+      quizQuestions;
   const answers = placement ? state.placementDraft : state.quizDrafts[key] || {};
   const [index, setIndex] = useState(0);
   const [confirm, setConfirm] = useState(false);
@@ -454,7 +478,9 @@ export function Quiz({ placement = false }) {
       id: crypto.randomUUID(),
       courseId,
       lessonId,
-      title: placement ? 'Kiểm tra đầu vào' : 'Present Simple Quiz',
+      title: placement
+        ? 'Kiểm tra đầu vào'
+        : (getLessonContent(courseId, Number(lessonId))?.en || 'Present Simple') + ' Quiz',
       answers,
       questions,
       score: correctCount,
@@ -473,9 +499,9 @@ export function Quiz({ placement = false }) {
         !placement && passed && numLessonId > 0
           ? {
               ...previous.completed,
-              [courseId]: [
-                ...new Set([...(previous.completed[courseId] || []), numLessonId]),
-              ].sort((a, b) => a - b),
+              [courseId]: [...new Set([...(previous.completed[courseId] || []), numLessonId])].sort(
+                (a, b) => a - b,
+              ),
             }
           : previous.completed;
 
@@ -607,13 +633,9 @@ export function QuizResult({ placement = false }) {
   const total = result.total || 20;
   const correct = result.score;
   const percentage =
-    result.percentage !== undefined
-      ? result.percentage
-      : Math.round((correct / total) * 100);
+    result.percentage !== undefined ? result.percentage : Math.round((correct / total) * 100);
   const score10 =
-    result.score10 !== undefined
-      ? result.score10
-      : Math.round((correct / total) * 10 * 10) / 10;
+    result.score10 !== undefined ? result.score10 : Math.round((correct / total) * 10 * 10) / 10;
   let level = result.level || state.profile?.level;
   if (!level) {
     if (percentage > 80) level = 'B2';
@@ -630,9 +652,9 @@ export function QuizResult({ placement = false }) {
         update((previous) => ({
           completed: {
             ...previous.completed,
-            [courseId]: [
-              ...new Set([...(previous.completed[courseId] || []), numLessonId]),
-            ].sort((a, b) => a - b),
+            [courseId]: [...new Set([...(previous.completed[courseId] || []), numLessonId])].sort(
+              (a, b) => a - b,
+            ),
           },
         }));
       }

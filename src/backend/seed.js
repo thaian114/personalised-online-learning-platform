@@ -2,6 +2,8 @@
 // Imports default courses, lessons, questions, and assignments matching src/data.js
 
 import prisma from './db/prisma.js';
+import { getLessonContent } from '../course-content.js';
+import { hashPassword } from './modules/users/users.service.js';
 import {
   goals,
   initialCourses,
@@ -32,7 +34,7 @@ async function main() {
         id: user.id,
         email: user.email,
         name: user.name,
-        password: 'Demo@123',
+        password: hashPassword('Demo@123'),
         role: user.role,
         level: 'A1',
         goal: user.goal || goals[0],
@@ -104,6 +106,19 @@ async function main() {
     for (const l of lessonsList) {
       const title = l.title || `Lesson ${l.id}: Key Concepts`;
       const minutes = l.minutes || 15;
+      const content = getLessonContent(c.id, l.id);
+      const body = content
+        ? [
+            content.en,
+            ...content.objectives,
+            content.body,
+            ...content.examples,
+            'Practice: ' + content.practice,
+            'Worksheet: ' + content.worksheet,
+          ].join('\n\n')
+        : `Prototype lesson: ${title}. Full teaching material is scheduled after the interim milestone.`;
+      const summary =
+        content?.summary || `Prototype outline for ${title}; not yet a complete teaching unit.`;
       await prisma.lesson.upsert({
         where: {
           courseId_id: {
@@ -115,8 +130,8 @@ async function main() {
           title,
           minutes,
           orderIndex: l.id,
-          body: `Nội dung chi tiết cho bài học: ${title}. Bao gồm phần lý thuyết, từ vựng và các ví dụ minh họa ngữ cảnh.`,
-          summary: `Tóm tắt bài học ${title} - Những điểm ngữ pháp và từ vựng trọng tâm cần ghi nhớ.`,
+          body,
+          summary,
         },
         create: {
           id: l.id,
@@ -124,8 +139,8 @@ async function main() {
           title,
           minutes,
           orderIndex: l.id,
-          body: `Nội dung chi tiết cho bài học: ${title}. Bao gồm phần lý thuyết, từ vựng và các ví dụ minh họa ngữ cảnh.`,
-          summary: `Tóm tắt bài học ${title} - Những điểm ngữ pháp và từ vựng trọng tâm cần ghi nhớ.`,
+          body,
+          summary,
         },
       });
     }
@@ -198,14 +213,14 @@ async function main() {
     update: {
       title: defaultAssignment.title,
       prompt: defaultAssignment.prompt,
-      due: new Date(defaultAssignment.due),
+      due: new Date(defaultAssignment.due + ':00+07:00'),
     },
     create: {
       id: asgId,
       courseId: 'foundations',
       title: defaultAssignment.title,
       prompt: defaultAssignment.prompt,
-      due: new Date(defaultAssignment.due),
+      due: new Date(defaultAssignment.due + ':00+07:00'),
     },
   });
   console.log('✅ Seeded assignment successfully');
