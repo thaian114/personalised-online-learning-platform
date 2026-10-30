@@ -45,6 +45,6 @@ npm audit
 
 ## Limits
 
-Browser tests exercise the localStorage prototype rather than a fully integrated API deployment. API role tests use the existing development identity mechanism; they do not prove resistance to token forgery. Recommendation tests use synthetic data and an existing popularity baseline; no real-user effectiveness claim is made. Placement CEFR thresholds are unvalidated. No load test, real-user usability study or container runtime test was completed in this environment.
+Browser tests exercise the localStorage prototype rather than a fully integrated API deployment. API role tests use the existing development identity mechanism; they do not prove resistance to token forgery. Recommendation tests use synthetic data and an existing popularity baseline; no real-user effectiveness claim is made. Placement CEFR thresholds are unvalidated. No load test or real-user usability study was completed. Container runtime was verified on the Linux CI runner, not locally on Windows.
 
 Final measured results are listed in `INTERIM_CONTRIBUTION.md`. CI run URLs and the branch diff provide independently inspectable evidence after push.

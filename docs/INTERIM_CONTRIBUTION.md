@@ -11,7 +11,7 @@ For the first interim milestone, we prepared six English teaching units across E
 
 The quality workflow was extended with content validation, seed consistency checks and browser tests for lesson-specific quizzes and worksheet delivery. Existing API tests cover accounts, courses, enrolment, assessment, administration and personalised learning paths. An isolated runner provisions a separately seeded SQLite database for each test file to avoid changing developer data or coupling suites through shared state. GitHub Actions now runs these checks, browser tests and the production build, retaining browser evidence as downloadable artifacts.
 
-Deployment preparation includes an environment example, a reproduction guide, backend container/Compose configuration and a release checklist for the existing Vercel frontend. The actual database remains SQLite, which deviates from the PostgreSQL architecture in the proposal. The API is currently a local prototype: authentication hardening and full frontend/backend integration remain required before public deployment. Docker configuration is supplied but has not been executed because Docker is not installed on the test machine.
+Deployment preparation includes an environment example, a reproduction guide, backend container/Compose configuration and a release checklist for the existing Vercel frontend. The actual database remains SQLite, which deviates from the PostgreSQL architecture in the proposal. The API is currently a local prototype: authentication hardening and full frontend/backend integration remain required before public deployment. Docker build, seed and health checks passed on GitHub-hosted Linux; Docker is not installed on the local Windows machine.
 
 ## Measured verification
 
@@ -23,10 +23,10 @@ Deployment preparation includes an environment example, a reproduction guide, ba
 | Production build | Passed with Vite 8.3.5; warning: main JS chunk exceeds 500 kB |
 | Dependency audit after compatible updates | 0 reported vulnerabilities |
 | Local seeded backend | `/api/health` returned status ok; `/api/courses` returned success true |
-| Docker | Not installed locally; automated Linux container smoke job added to CI |
+| Docker | Linux CI build, schema initialization, seed, startup and health check passed; not installed locally |
 | Hosted deployment | Existing Vercel URL is documented; this branch has not been newly deployed to the team's cloud project |
 
-Evidence commands and coverage are in `TESTING.md`; browser HTML reports are generated locally under ignored `playwright-report/`. GitHub Actions uploads the browser report and `frontend-dist` artifacts. Check the latest Actions run for this branch before claiming CI or container checks passed. These results cover the implementation based on commit `894b807`; the branch history identifies the submitted change.
+Evidence commands and coverage are in `TESTING.md`; browser HTML reports are generated locally under ignored `playwright-report/`. [GitHub Actions run 41055345233](https://github.com/thaian114/personalised-online-learning-platform/actions/runs/41055345233) passed both test/build and container jobs for implementation commit `ec4866a`. It contains browser evidence and the deployable `frontend-dist` artifact, retained for 14 days. These results cover the implementation based on commit `894b807`; the follow-up documentation commit records the measured CI evidence without changing runtime code.
 
 ## Demo script (English narration)
 
@@ -45,7 +45,7 @@ Evidence commands and coverage are in `TESTING.md`; browser HTML reports are gen
 | SQLite vs proposed PostgreSQL | Agree and document the database decision; migrate and retest if required | Database + Deployment |
 | Six completed units; remaining lessons are outlines | Expand validated English material after interim | Course contents |
 | Lesson-specific frontend quizzes vs shared API bank | Store/link per-lesson questions and unify grading | Backend + Course contents |
-| No new hosted API and no verified container runtime | Run container checks and publish after authentication hardening | Deployment |
+| No new hosted API; container verified only in Linux CI | Reproduce locally and publish after authentication hardening | Deployment |
 | Unvalidated placement/recommendation effectiveness | Expand synthetic profiles, agree metrics and collect tester feedback | Advanced component + Testing |
 | Partly Vietnamese UI | Prepare an English presentation; complete localization for final | Frontend |
 

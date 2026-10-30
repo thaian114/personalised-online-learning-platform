@@ -38,7 +38,7 @@ Demo accounts: `minhanh@example.com` (student), `linhtran@example.com` (instruct
 
 ## Container prototype
 
-Docker/Compose must be installed separately. This environment did not have Docker, so container build and runtime are **unverified**. The configuration deliberately publishes the API on loopback only. It does not serve the frontend; use Vite or the static frontend host separately.
+Docker/Compose must be installed separately on the local machine. Container build, database initialization, seed and HTTP health check were successfully verified on the GitHub-hosted Linux runner for implementation commit `ec4866a`: [CI evidence](https://github.com/thaian114/personalised-online-learning-platform/actions/runs/41055345233). Local Windows container execution is still untested because Docker is not installed here. The configuration publishes the API on loopback only. It does not serve the frontend; use Vite or the static frontend host separately.
 
 ```powershell
 docker compose build
