@@ -1,5 +1,14 @@
 # Luma English — Frontend
 
+## Interim quality and course-content package
+
+- [Course contents and demonstration scope](docs/COURSE_CONTENT.md)
+- [Test strategy and reproduction](docs/TESTING.md)
+- [Deployment guide and known release blockers](docs/DEPLOYMENT.md)
+- [English interim contribution and measured evidence](docs/INTERIM_CONTRIBUTION.md)
+
+Run `npm run test:integration` for isolated, seeded API/domain/content checks and `npm run test:e2e` for the browser demo. The current Prisma provider is SQLite; public backend deployment and full API/UI integration remain in progress.
+
 React + JavaScript + CSS, triển khai từ [Figma Luma English](https://www.figma.com/design/gsvAsJNez3sPsdk4ErA9ky). Đây là mã nguồn giao diện người dùng (Frontend), ban đầu sử dụng dữ liệu mẫu và hiện đã có dịch vụ Backend API đi kèm tại thư mục `src/backend/` (chi tiết xem tại [Tài liệu Backend](src/backend/README.md)).
 
 Người tiếp tục phát triển: đọc [hướng dẫn bàn giao](docs/HANDOFF.md). Trong code có `TODO(API_...)` chỉ điểm nối backend, `EXTEND(...)` chỉ cách mở rộng và `REUSE(...)` hướng dẫn component/hook dùng chung. Tài liệu gồm model dữ liệu, bản đồ feature, ví dụ sử dụng và cách kiểm tra; các nhãn này là comment, không phải cấu hình bật API.

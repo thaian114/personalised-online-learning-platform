@@ -20,6 +20,8 @@
     "test:admin": "node --test tests/admin.test.js",
     "test:path": "node --test tests/path.test.js",
     "test:all": "node --test tests/*.test.js",
+    "test:content": "node --test tests/content.test.js",
+    "test:integration": "node scripts/test-integration.mjs",
     "test:e2e": "playwright test",
     "format": "prettier --write src tests *.js *.json index.html"
   },

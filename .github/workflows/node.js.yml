@@ -2,13 +2,18 @@ name: Test and Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'codex/**']
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout source code
@@ -17,14 +22,60 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.14.0
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm test
+      - name: Run isolated domain, content and API tests
+        run: npm run test:integration
+
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser tests
+        run: npm run test:e2e
 
       - name: Build project
         run: npm run build
+
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-evidence
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+      - name: Upload deployable frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+          retention-days: 14
+
+  container-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build local API container
+        run: docker compose build
+      - name: Initialize disposable demo database
+        run: |
+          docker compose run --rm api node -e "require('node:fs').closeSync(require('node:fs').openSync('/data/interim.db','a'))"
+          docker compose run --rm api npm run prisma:db:push
+          docker compose run --rm api npm run prisma:seed
+      - name: Check container process health
+        run: |
+          docker compose up -d --wait
+          curl --fail http://127.0.0.1:5000/api/health
+      - name: Collect container logs
+        if: always()
+        run: docker compose logs
+      - name: Stop disposable CI environment
+        if: always()
+        run: docker compose down

@@ -163,8 +163,24 @@ test('3. 🚨 SECURITY: GET /placement/test strips answer and explanation from 2
 test('4. POST /placement/submit - Score > 80% classifies student as B2 and updates User table', async () => {
   // Submit 18 correct answers (90% > 80% => B2)
   const answers = {
-    q1: 1, q2: 2, q3: 1, q4: 2, q5: 1, q6: 2, q7: 1, q8: 2, q9: 2, q10: 1,
-    p11: 2, p12: 1, p13: 3, p14: 0, p15: 1, p16: 2, p17: 2, p18: 1,
+    q1: 1,
+    q2: 2,
+    q3: 1,
+    q4: 2,
+    q5: 1,
+    q6: 2,
+    q7: 1,
+    q8: 2,
+    q9: 2,
+    q10: 1,
+    p11: 2,
+    p12: 1,
+    p13: 3,
+    p14: 0,
+    p15: 1,
+    p16: 2,
+    p17: 2,
+    p18: 1,
     p19: 0, // wrong
     p20: 0, // wrong
   }; // 18/20 = 90%
@@ -189,7 +205,8 @@ test('4. POST /placement/submit - Score > 80% classifies student as B2 and updat
 test('5. POST /placement/submit - Score < 40% classifies student as A1', async () => {
   // Submit only 2 correct answers (10% < 40% => A1)
   const answers = {
-    q1: 1, q2: 2,
+    q1: 1,
+    q2: 2,
   }; // 2/20 = 10%
 
   const res = await fetch(`${baseUrl}/placement/submit`, {
@@ -209,6 +226,11 @@ test('5. POST /placement/submit - Score < 40% classifies student as A1', async (
 let createdSubmissionId;
 
 test('6. POST /courses/:id/assignments/:assignmentId/submit - Student submits assignment', async () => {
+  // Control the fixture deadline instead of depending on the calendar date.
+  await prisma.assignment.update({
+    where: { id: 'asg-foundations-1' },
+    data: { due: new Date('2000-01-01T00:00:00Z') },
+  });
   const payload = {
     title: 'My Daily Routine Exercise',
     text: 'Every morning I wake up at 6am. I study English and read books before breakfast.',
@@ -226,7 +248,7 @@ test('6. POST /courses/:id/assignments/:assignmentId/submit - Student submits as
   assert.equal(json.success, true);
   assert.equal(json.data.status, 'pending');
   assert.equal(json.data.userId, testStudentId);
-  // Default assignment deadline was 2026-09-28, so current submission is marked late
+  // The explicit past deadline makes this test reproducible.
   assert.equal(json.data.late, true);
 
   createdSubmissionId = json.data.id;
@@ -273,7 +295,11 @@ test('8. PUT /instructor/submissions/:id/grade - Instructor saves draft and publ
   const gradeRes = await fetch(`${baseUrl}/instructor/submissions/${createdSubmissionId}/grade`, {
     method: 'PUT',
     headers: instructorHeaders,
-    body: JSON.stringify({ score: 9.0, feedback: 'Bài viết rất tốt, ngữ pháp chuẩn xác!', status: 'graded' }),
+    body: JSON.stringify({
+      score: 9.0,
+      feedback: 'Bài viết rất tốt, ngữ pháp chuẩn xác!',
+      status: 'graded',
+    }),
   });
   const gradeJson = await gradeRes.json();
   assert.equal(gradeRes.status, 200);

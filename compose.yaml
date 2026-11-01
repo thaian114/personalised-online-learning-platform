@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    # Demo authentication is not suitable for an internet-facing service.
+    ports:
+      - '127.0.0.1:5000:5000'
+    environment:
+      DATABASE_URL: file:/data/interim.db
+    volumes:
+      - interim-data:/data
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  interim-data:

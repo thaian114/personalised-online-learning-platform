@@ -19,8 +19,8 @@ export const initialCourses = [
     color: 'indigo',
     level: 'Cơ bản',
     category: 'Ngữ pháp',
-    description: 'Nắm chắc ngữ pháp căn bản và cách dùng từ.',
-    reason: 'Phù hợp với mục tiêu củng cố nền tảng và kết quả đầu vào của bạn.',
+    description: 'Build a foundation in English grammar and everyday vocabulary.',
+    reason: 'Build foundational skills before progressing to intermediate courses.',
     lessons: 12,
     hours: 3,
     teacher: 'Linh Trần',
@@ -28,9 +28,9 @@ export const initialCourses = [
     status: 'published',
     prerequisite: '',
     outcomes: [
-      'Sử dụng cấu trúc câu và các thì cơ bản.',
-      'Mở rộng từ vựng trong tình huống quen thuộc.',
-      'Áp dụng kiến thức qua quiz và bài tập thực hành.',
+      'Introduce yourself and use basic sentence structures.',
+      'Choose subject pronouns and correct forms of be.',
+      'Apply knowledge through lesson quizzes and writing practice.',
     ],
   },
   {
@@ -40,8 +40,8 @@ export const initialCourses = [
     color: 'teal',
     level: 'Cơ bản',
     category: 'Giao tiếp',
-    description: 'Giao tiếp tự nhiên trong những tình huống quen thuộc.',
-    reason: 'Gợi ý từ mục tiêu giao tiếp và lịch sử học của bạn.',
+    description: 'Practise short conversations in familiar everyday situations.',
+    reason: 'Practise communication through greetings, introductions and daily routines.',
     lessons: 10,
     hours: 3,
     teacher: 'Linh Trần',
@@ -49,9 +49,9 @@ export const initialCourses = [
     status: 'published',
     prerequisite: '',
     outcomes: [
-      'Giới thiệu bản thân một cách tự tin.',
-      'Hỏi đường, gọi món và giao tiếp khi mua sắm.',
-      'Duy trì những cuộc hội thoại ngắn.',
+      'Start and close a conversation politely.',
+      'Introduce your hometown and interests.',
+      'Describe daily routines and ask follow-up questions.',
     ],
   },
   {
@@ -142,9 +142,9 @@ export const initialCourses = [
 
 const curricula = {
   foundations: [
-    'Chào hỏi và giới thiệu',
-    'Danh từ và đại từ',
-    'Động từ to be',
+    'Greetings and introductions',
+    'Nouns and pronouns',
+    'The verb to be',
     'Thì hiện tại đơn',
     'Câu phủ định và câu hỏi',
     'Trạng từ tần suất',
@@ -610,7 +610,7 @@ export const defaultAssignment = {
   title: 'My daily routine',
   prompt:
     'Write a short paragraph about your daily routine. Use the present simple tense and include at least five activities.',
-  due: '2026-09-28T23:59',
+  due: '2026-11-01T23:59',
 };
 
 export function progressOf(course, completed) {
