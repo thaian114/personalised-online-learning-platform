@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import prisma from '../src/backend/db/prisma.js';
-import { interimLessons } from '../src/course-content.js';
+import { getLessonContent, interimLessons } from '../src/course-content.js';
 import { verifyPassword } from '../src/backend/modules/users/users.service.js';
 
 test.after(async () => prisma.$disconnect());
@@ -27,4 +27,16 @@ test('seeded lessons match curated material and reseeding preserves row counts',
   assert.equal(result.status, 0, result.stderr);
   assert.equal(await prisma.lesson.count(), before);
   assert.equal(await prisma.course.count(), 6);
+});
+
+test('all twelve Foundations lessons are seeded with curated summaries', async () => {
+  const lessons = await prisma.lesson.findMany({
+    where: { courseId: 'foundations' },
+    orderBy: { id: 'asc' },
+  });
+  assert.equal(lessons.length, 12);
+  for (const lesson of lessons) {
+    assert.ok(getLessonContent('foundations', lesson.id), `Missing foundations:${lesson.id}`);
+    assert.doesNotMatch(lesson.summary, /Prototype outline/);
+  }
 });

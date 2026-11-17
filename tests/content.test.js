@@ -5,7 +5,6 @@ import { initialCourses, getLessons } from '../src/data.js';
 import { interimLessons, getLessonContent } from '../src/course-content.js';
 
 test('interim lessons have valid course/lesson identities and complete English teaching content', () => {
-  assert.equal(Object.keys(interimLessons).length, 6);
   for (const [key, content] of Object.entries(interimLessons)) {
     const [courseId, lessonId] = key.split(':');
     const course = initialCourses.find((c) => c.id === courseId);
@@ -20,6 +19,23 @@ test('interim lessons have valid course/lesson identities and complete English t
     assert.ok(existsSync(new URL('../public' + content.worksheet, import.meta.url)));
     assert.equal(getLessonContent(courseId, Number(lessonId)), content);
   }
+});
+
+test('English Foundations has twelve complete lessons with globally unique question ids', () => {
+  const lessons = Array.from({ length: 12 }, (_, index) =>
+    getLessonContent('foundations', index + 1),
+  );
+  lessons.forEach((content, index) => {
+    assert.ok(content, `Missing foundations:${index + 1}`);
+    assert.equal(content.objectives.length, 2);
+    assert.ok(content.body.length > 100);
+    assert.ok(content.examples.length >= 3);
+    assert.ok(content.practice.length > 20);
+    assert.ok(content.summary.length > 20);
+    assert.equal(content.questions.length, 3);
+  });
+  const questionIds = lessons.flatMap((content) => content.questions.map((q) => q.id));
+  assert.equal(new Set(questionIds).size, 36);
 });
 
 test('interim lesson quiz answers, explanations and ids are valid', () => {
