@@ -52,3 +52,18 @@ test('Foundations final lesson has complete content and a three-question quiz', 
   await page.getByRole('link', { name: 'Làm bài kiểm tra', exact: true }).click();
   await expect(page.getByText('Câu 1 / 3')).toBeVisible();
 });
+
+test('Everyday English final lesson has complete content and a three-question quiz', async ({
+  page,
+}) => {
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Học viên', exact: true }).click();
+  await page.goto('/learn/everyday/10');
+  await expect(page.getByRole('heading', { name: 'Conversation practice', level: 1 })).toBeVisible();
+  await expect(page.getByText('Combine greetings, questions and responses in a natural conversation.')).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Open printable worksheet and answer key' }),
+  ).toHaveAttribute('href', '/materials/everyday-worksheet.html');
+  await page.getByRole('link', { name: 'Làm bài kiểm tra', exact: true }).click();
+  await expect(page.getByText('Câu 1 / 3')).toBeVisible();
+});

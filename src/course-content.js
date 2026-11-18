@@ -519,6 +519,149 @@ export const interimLessons = {
       ),
     ],
   },
+  'everyday:4': {
+    en: 'At the café',
+    sub: 'Order food and drinks politely.',
+    objectives: ['Order a drink and a snack politely.', 'Ask about a menu item and its price.'],
+    body: 'Begin an order with I would like or Can I have rather than only naming an item. Use please at the end and thank the server after they respond. Ask How much is it? for a price and Is there any...? when checking availability. The server may ask For here or to go?',
+    examples: [
+      'Can I have a cup of tea, please?',
+      'I would like a cheese sandwich.',
+      'How much is the orange juice?',
+    ],
+    practice:
+      'Role-play a café order with a server. Order one drink and one snack, ask one question and finish the exchange politely.',
+    summary: 'Use polite request forms, ask clear menu questions and confirm the order before paying.',
+    worksheet: '/materials/everyday-worksheet.html',
+    questions: [
+      question('e4-1', 'Choose the most polite order.', ['Coffee.', 'Give coffee.', 'Can I have a coffee, please?', 'I coffee now.'], 2, 'Can I have...please is a polite request.'),
+      question('e4-2', 'What question asks for a price?', ['Where is it?', 'How much is it?', 'Who is it?', 'When is it?'], 1, 'How much is it asks about price.'),
+      question('e4-3', 'A server asks For here or to go? What are they asking?', ['Where you will eat', 'How you will pay', 'What time it is', 'Who ordered first'], 0, 'The question asks whether you will eat there or take the order away.'),
+    ],
+  },
+  'everyday:5': {
+    en: 'Asking for directions',
+    sub: 'Find a place and explain a simple route.',
+    objectives: ['Ask where a place is politely.', 'Give a route using sequence and direction words.'],
+    body: 'Start politely with Excuse me and ask Where is...? or How can I get to...? Give directions in short steps. Common phrases include go straight, turn left, turn right, cross the street and next to. Use first, then and finally so the listener can follow the route.',
+    examples: [
+      'Excuse me, how can I get to the station?',
+      'Go straight and turn left at the traffic lights.',
+      'The bank is next to the pharmacy.',
+    ],
+    practice:
+      'Draw a simple map with four places. Ask a partner for one destination and give a three-step route using direction words.',
+    summary: 'Ask politely, give one direction at a time and use landmarks to make the route clear.',
+    worksheet: '/materials/everyday-worksheet.html',
+    questions: [
+      question('e5-1', 'Choose a polite way to begin.', ['Move!', 'Excuse me, where is the bank?', 'Bank where?', 'Tell road.'], 1, 'Excuse me makes the request polite.'),
+      question('e5-2', 'What is the opposite of turn left?', ['Go past', 'Turn right', 'Go across', 'Stop here'], 1, 'Right is the opposite direction from left.'),
+      question('e5-3', 'The café is next to the library. Where is it?', ['Beside the library', 'Inside the library', 'Behind the city', 'Across the country'], 0, 'Next to means beside.'),
+    ],
+  },
+  'everyday:6': {
+    en: 'Going shopping',
+    sub: 'Ask about size, colour and price.',
+    objectives: ['Ask for product information and assistance.', 'Compare choices using common shopping language.'],
+    body: 'Ask Do you have this in...? when you need another size or colour. Use Can I try it on? for clothing. This and these identify nearby items; that and those identify items farther away. To compare prices, use cheaper than or more expensive than and confirm the total before paying.',
+    examples: [
+      'Do you have this shirt in blue?',
+      'Can I try these shoes on?',
+      'This bag is cheaper than that one.',
+    ],
+    practice:
+      'Create a dialogue between a customer and a shop assistant. Ask about colour, size and price, then choose between two products.',
+    summary: 'Describe the item clearly, ask for the option you need and compare products before buying.',
+    worksheet: '/materials/everyday-worksheet.html',
+    questions: [
+      question('e6-1', 'You want another size. What should you ask?', ['Where size go?', 'Do you have this in medium?', 'Medium is who?', 'I am a medium.'], 1, 'Do you have this in medium asks for a size.'),
+      question('e6-2', 'Choose the plural nearby word.', ['This', 'That', 'These', 'It'], 2, 'These refers to plural items nearby.'),
+      question('e6-3', 'A $10 shirt is ___ than a $20 shirt.', ['cheaper', 'more cheap', 'expensiver', 'most price'], 0, 'Cheaper than compares a lower price.'),
+    ],
+  },
+  'everyday:7': {
+    en: 'Making plans',
+    sub: 'Invite someone and agree on a time.',
+    objectives: ['Invite someone to an activity.', 'Accept, decline or suggest another time politely.'],
+    body: 'Use Would you like to...? or Do you want to...? for an invitation. Accept with That sounds great or I would love to. If you cannot join, give a short polite reason and suggest another time. Confirm the day, time and meeting place so both people understand the plan.',
+    examples: [
+      'Would you like to study together on Saturday?',
+      'That sounds great. How about ten o’clock?',
+      'I am sorry, I cannot come then. Is Sunday possible?',
+    ],
+    practice:
+      'Invite a classmate to a study activity. Practise one accepted invitation and one polite decline with an alternative time.',
+    summary: 'Make a clear invitation, respond politely and confirm when and where you will meet.',
+    worksheet: '/materials/everyday-worksheet.html',
+    questions: [
+      question('e7-1', 'Which sentence is an invitation?', ['I studied yesterday.', 'Would you like to have lunch?', 'The café is closed.', 'Lunch costs ten dollars.'], 1, 'Would you like to introduces an invitation.'),
+      question('e7-2', 'Choose a polite decline.', ['No.', 'Never ask.', 'I am sorry, I cannot. How about Friday?', 'Go alone.'], 2, 'It declines politely and offers another time.'),
+      question('e7-3', 'What details should you confirm?', ['Colour and size', 'Day, time and place', 'Name and password', 'Price and change'], 1, 'A plan needs a day, time and meeting place.'),
+    ],
+  },
+  'everyday:8': {
+    en: 'At work',
+    sub: 'Ask for help and give a short update.',
+    objectives: ['Make a polite workplace request.', 'Report progress and a problem clearly.'],
+    body: 'Use Could you...? or Can you help me with...? for a polite request. Give an update with what is finished, what is in progress and what you need next. When reporting a problem, state the issue, its effect and a possible next action. Keep workplace messages specific and respectful.',
+    examples: [
+      'Could you check this email, please?',
+      'I have finished the first task and I am working on the report.',
+      'The file will not open, so I need another copy.',
+    ],
+    practice:
+      'Give a one-minute project update with one completed task, one current task and one problem. Ask a colleague for specific help.',
+    summary: 'Use polite requests and structure updates around completed work, current work and next needs.',
+    worksheet: '/materials/everyday-worksheet.html',
+    questions: [
+      question('e8-1', 'Choose the polite request.', ['Check this now.', 'Could you check this file, please?', 'You check file.', 'File!'], 1, 'Could you...please is polite and specific.'),
+      question('e8-2', 'Which phrase reports completed work?', ['I have finished the draft.', 'I finish tomorrow now.', 'I will yesterday.', 'I am no task.'], 0, 'Have finished reports a completed task with a present result.'),
+      question('e8-3', 'A useful problem report includes the issue and ___.', ['a random story', 'a possible next action', 'no details', 'another person’s password'], 1, 'A next action helps colleagues respond to the problem.'),
+    ],
+  },
+  'everyday:9': {
+    en: 'Talking on the phone',
+    sub: 'Open, clarify and close a phone call.',
+    objectives: ['Identify yourself and the purpose of a call.', 'Ask for repetition or leave a short message.'],
+    body: 'Begin by greeting the listener, identifying yourself and stating why you are calling. Because you cannot see gestures, speak clearly and check important details. Use Could you repeat that? or Could you speak more slowly? If the person is unavailable, leave your name, number and a brief reason for the call.',
+    examples: [
+      'Hello, this is Bao. I am calling about tomorrow’s class.',
+      'Could you repeat the room number, please?',
+      'Please ask Ms Lan to call me back at 3 p.m.',
+    ],
+    practice:
+      'Role-play a phone call about a changed class time. Include an introduction, one clarification request and a clear closing.',
+    summary: 'Identify yourself, state the purpose, confirm details and close the call clearly.',
+    worksheet: '/materials/everyday-worksheet.html',
+    questions: [
+      question('e9-1', 'How should you identify yourself?', ['This is Bao.', 'Bao maybe.', 'Who I?', 'It name Bao.'], 0, 'This is followed by your name is natural on the phone.'),
+      question('e9-2', 'You did not hear a number. What should you say?', ['Repeat that, please?', 'No number.', 'Speak nothing.', 'Why telephone?'], 0, 'Asking for repetition is clear and polite.'),
+      question('e9-3', 'What belongs in a phone message?', ['A password', 'Your name and reason for calling', 'Every personal detail', 'No contact information'], 1, 'A useful message identifies the caller and purpose.'),
+    ],
+  },
+  'everyday:10': {
+    en: 'Conversation practice',
+    sub: 'Bring everyday communication skills together.',
+    objectives: [
+      'Combine greetings, questions and responses in a natural conversation.',
+      'Use clarification and polite closing expressions when needed.',
+    ],
+    body: 'A successful conversation has an opening, an exchange and a closing. Listen to the previous answer before choosing your next question. Use follow-up questions to show interest, and ask for clarification instead of guessing. Match your language to the situation, then close politely when the purpose is complete.',
+    examples: [
+      'Hi, are you free to study after class?',
+      'That sounds good. Which café should we meet at?',
+      'Could you repeat the time, please? Great, see you then.',
+    ],
+    practice:
+      'Create an eight-line conversation that includes a greeting, invitation, follow-up question, clarification request, confirmed plan and closing.',
+    summary: 'Listen, respond to the previous idea, clarify important details and finish the exchange politely.',
+    worksheet: '/materials/everyday-worksheet.html',
+    questions: [
+      question('e10-1', 'What usually comes first in a conversation?', ['A closing', 'A greeting', 'A payment', 'A written report'], 1, 'A greeting opens the interaction.'),
+      question('e10-2', 'Which response shows active listening?', ['That sounds interesting. When did you start?', 'I will ignore that.', 'Different topic now.', 'No response.'], 0, 'It responds to the idea and adds a relevant follow-up question.'),
+      question('e10-3', 'Choose a polite closing after confirming a plan.', ['Stop talking.', 'See you then. Take care.', 'No more.', 'Why are you here?'], 1, 'See you then confirms the meeting and closes politely.'),
+    ],
+  },
 };
 
 export function getLessonContent(courseId, lessonId) {

@@ -40,3 +40,15 @@ test('all twelve Foundations lessons are seeded with curated summaries', async (
     assert.doesNotMatch(lesson.summary, /Prototype outline/);
   }
 });
+
+test('all ten Everyday English lessons are seeded with curated summaries', async () => {
+  const lessons = await prisma.lesson.findMany({
+    where: { courseId: 'everyday' },
+    orderBy: { id: 'asc' },
+  });
+  assert.equal(lessons.length, 10);
+  for (const lesson of lessons) {
+    assert.ok(getLessonContent('everyday', lesson.id), `Missing everyday:${lesson.id}`);
+    assert.doesNotMatch(lesson.summary, /Prototype outline/);
+  }
+});

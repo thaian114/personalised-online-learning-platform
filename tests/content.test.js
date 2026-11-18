@@ -38,6 +38,23 @@ test('English Foundations has twelve complete lessons with globally unique quest
   assert.equal(new Set(questionIds).size, 36);
 });
 
+test('Everyday English has ten complete lessons with globally unique question ids', () => {
+  const lessons = Array.from({ length: 10 }, (_, index) =>
+    getLessonContent('everyday', index + 1),
+  );
+  lessons.forEach((content, index) => {
+    assert.ok(content, `Missing everyday:${index + 1}`);
+    assert.equal(content.objectives.length, 2);
+    assert.ok(content.body.length > 100);
+    assert.ok(content.examples.length >= 3);
+    assert.ok(content.practice.length > 20);
+    assert.ok(content.summary.length > 20);
+    assert.equal(content.questions.length, 3);
+  });
+  const questionIds = lessons.flatMap((content) => content.questions.map((q) => q.id));
+  assert.equal(new Set(questionIds).size, 30);
+});
+
 test('interim lesson quiz answers, explanations and ids are valid', () => {
   for (const content of Object.values(interimLessons)) {
     assert.ok(content.questions.length >= 3);
