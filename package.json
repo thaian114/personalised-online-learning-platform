@@ -23,6 +23,7 @@
     "test:content": "node --test tests/content.test.js",
     "test:integration": "node scripts/test-integration.mjs",
     "test:e2e": "playwright test",
+    "smoke:release": "node scripts/smoke-release.mjs",
     "format": "prettier --write src tests *.js *.json index.html"
   },
   "dependencies": {
