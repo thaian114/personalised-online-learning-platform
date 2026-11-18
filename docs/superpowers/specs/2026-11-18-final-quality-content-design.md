@@ -82,4 +82,3 @@ Course content remains defined once in `src/course-content.js`. The frontend les
 6. Docker Compose defines healthy frontend and backend services and the release smoke script verifies both.
 7. GitHub Actions runs tests, build, and container smoke checks from a clean checkout.
 8. Documentation states verified evidence and remaining release blockers without claiming a public production deployment.
-

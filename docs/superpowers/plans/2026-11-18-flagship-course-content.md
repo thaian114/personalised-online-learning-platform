@@ -148,4 +148,3 @@ Expected: PASS.
 git add docs/COURSE_CONTENT.md docs/INTERIM_CONTRIBUTION.md
 git commit -m "docs(content): record completed flagship courses"
 ```
-

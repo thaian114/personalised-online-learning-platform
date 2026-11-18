@@ -161,4 +161,3 @@ Expected: frontend, API health, and seeded courses all PASS. If Docker is unavai
 git add .github/workflows/node.js.yml tests/deployment-config.test.js docs/DEPLOYMENT.md README.md
 git commit -m "ci(deploy): verify full-stack trial release"
 ```
-
