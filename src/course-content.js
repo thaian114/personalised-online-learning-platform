@@ -105,7 +105,7 @@ export const interimLessons = {
       'Choose am, is or are, add not for negatives and invert be and the subject for questions.',
     worksheet: '/materials/foundations-worksheet.html',
     questions: [
-      question('f3-1', 'I ___ ready.', ['is', 'are', 'be', 'am'], 3, 'I takes am.'),
+      question('f3-1', 'I ___ ready.', ['is', 'are', 'be', 'am'], 3, 'Use am with the subject I.'),
       question(
         'f3-2',
         'Choose the correct negative.',
@@ -291,7 +291,7 @@ export const interimLessons = {
       'Use am, is or are plus an ing verb for actions in progress, not for ordinary routines.',
     worksheet: '/materials/foundations-worksheet.html',
     questions: [
-      question('f8-1', 'We ___ English now.', ['study', 'are studying', 'studies', 'studied'], 1, 'Now signals the present continuous are studying.'),
+      question('f8-1', 'We ___ English now.', ['study', 'are studying', 'studies', 'studied'], 1, 'Now signals the present continuous form are studying.'),
       question('f8-2', 'Choose the correct negative.', ['He not listening.', 'He is not listening.', 'He does not listening.', 'He are not listening.'], 1, 'Put not after is and use listening.'),
       question('f8-3', 'Which sentence describes a routine?', ['She is walking now.', 'She walks every morning.', 'She is opening the door.', 'She is talking now.'], 1, 'Every morning describes a repeated routine.'),
     ],
@@ -340,7 +340,7 @@ export const interimLessons = {
     worksheet: '/materials/foundations-worksheet.html',
     questions: [
       question('f10-1', 'Where do you usually borrow a book?', ['A library', 'A bakery', 'A station', 'A pharmacy'], 0, 'Libraries lend books to readers.'),
-      question('f10-2', 'Who usually takes payment in a shop?', ['A passenger', 'A cashier', 'A neighbour', 'A driver'], 1, 'A cashier receives customers payments.'),
+      question('f10-2', 'Who usually takes payment in a shop?', ['A passenger', 'A cashier', 'A neighbour', 'A driver'], 1, "A cashier receives customers' payments."),
       question('f10-3', 'Choose the natural phrase.', ['drink a chair', 'borrow a book', 'read a kitchen', 'open a student'], 1, 'Borrow a book is a natural verb and noun combination.'),
     ],
   },
@@ -594,7 +594,7 @@ export const interimLessons = {
     summary: 'Make a clear invitation, respond politely and confirm when and where you will meet.',
     worksheet: '/materials/everyday-worksheet.html',
     questions: [
-      question('e7-1', 'Which sentence is an invitation?', ['I studied yesterday.', 'Would you like to have lunch?', 'The café is closed.', 'Lunch costs ten dollars.'], 1, 'Would you like to introduces an invitation.'),
+      question('e7-1', 'Which sentence is an invitation?', ['I studied yesterday.', 'Would you like to have lunch?', 'The café is closed.', 'Lunch costs ten dollars.'], 1, 'Use Would you like to when making an invitation.'),
       question('e7-2', 'Choose a polite decline.', ['No.', 'Never ask.', 'I am sorry, I cannot. How about Friday?', 'Go alone.'], 2, 'It declines politely and offers another time.'),
       question('e7-3', 'What details should you confirm?', ['Colour and size', 'Day, time and place', 'Name and password', 'Price and change'], 1, 'A plan needs a day, time and meeting place.'),
     ],
@@ -634,7 +634,7 @@ export const interimLessons = {
     summary: 'Identify yourself, state the purpose, confirm details and close the call clearly.',
     worksheet: '/materials/everyday-worksheet.html',
     questions: [
-      question('e9-1', 'How should you identify yourself?', ['This is Bao.', 'Bao maybe.', 'Who I?', 'It name Bao.'], 0, 'This is followed by your name is natural on the phone.'),
+      question('e9-1', 'How should you identify yourself?', ['This is Bao.', 'Bao maybe.', 'Who I?', 'It name Bao.'], 0, 'The pattern This is plus your name is natural on the phone.'),
       question('e9-2', 'You did not hear a number. What should you say?', ['Repeat that, please?', 'No number.', 'Speak nothing.', 'Why telephone?'], 0, 'Asking for repetition is clear and polite.'),
       question('e9-3', 'What belongs in a phone message?', ['A password', 'Your name and reason for calling', 'Every personal detail', 'No contact information'], 1, 'A useful message identifies the caller and purpose.'),
     ],

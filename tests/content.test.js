@@ -68,6 +68,18 @@ test('interim lesson quiz answers, explanations and ids are valid', () => {
   }
 });
 
+test('lesson explanations avoid known possessive and verb-agreement errors', () => {
+  const explanations = Object.values(interimLessons)
+    .flatMap((content) => content.questions)
+    .map((item) => item.explanation)
+    .join('\n');
+  assert.doesNotMatch(explanations, /customers payments/);
+  assert.doesNotMatch(explanations, /Would you like to introduces/);
+  assert.doesNotMatch(explanations, /I takes am/);
+  assert.doesNotMatch(explanations, /present continuous are studying/);
+  assert.doesNotMatch(explanations, /This is followed by your name is natural/);
+});
+
 test('lesson lookup does not leak content between courses or invent unsupported lessons', () => {
   assert.notEqual(getLessonContent('foundations', 1), getLessonContent('everyday', 1));
   assert.equal(getLessonContent('missing', 1), null);

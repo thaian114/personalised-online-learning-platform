@@ -37,7 +37,7 @@ npm audit --omit=dev --audit-level=high
 
 ## Changes and findings
 
-- Completed 22 flagship lessons and expanded validation to 67 Node/domain/API/content/deployment tests across 11 files.
+- Completed 22 flagship lessons and expanded validation to 68 Node/domain/API/content/deployment tests across 11 files.
 - Added two final-lesson browser cases, bringing the Playwright suite to 11 cases pending CI execution.
 - Fixed a calendar-dependent assignment test: it now sets an explicit past deadline before asserting that a submission is late.
 - The Windows Prisma engine failed when creating an absent SQLite file; the runner now creates each empty file before schema push.
