@@ -62,17 +62,21 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Build local API container
+      - name: Set up Node.js for release smoke
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+      - name: Build trial frontend and API containers
         run: docker compose build
       - name: Initialize disposable demo database
         run: |
           docker compose run --rm api node -e "require('node:fs').closeSync(require('node:fs').openSync('/data/interim.db','a'))"
           docker compose run --rm api npm run prisma:db:push
           docker compose run --rm api npm run prisma:seed
-      - name: Check container process health
+      - name: Check full trial deployment
         run: |
           docker compose up -d --wait
-          curl --fail http://127.0.0.1:5000/api/health
+          npm run smoke:release
       - name: Collect container logs
         if: always()
         run: docker compose logs

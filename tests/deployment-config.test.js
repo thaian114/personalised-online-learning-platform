@@ -25,3 +25,12 @@ test('compose exposes healthy frontend and api services on loopback', () => {
   assert.match(compose, /127\.0\.0\.1:5000:5000/);
   assert.match(compose, /interim-data:\/data/);
 });
+
+test('CI starts the full trial stack and runs the release smoke checker', () => {
+  const workflow = read('.github/workflows/node.js.yml');
+  assert.match(workflow, /docker compose up -d --wait/);
+  assert.match(workflow, /npm run smoke:release/);
+  assert.match(workflow, /if: always\(\)[\s\S]*docker compose logs/);
+  assert.match(workflow, /if: always\(\)[\s\S]*docker compose down/);
+  assert.doesNotMatch(workflow, /docker compose down -v/);
+});

@@ -9,6 +9,8 @@
 
 Run `npm run test:integration` for isolated, seeded API/domain/content checks and `npm run test:e2e` for the browser demo. The current Prisma provider is SQLite; public backend deployment and full API/UI integration remain in progress.
 
+For a reproducible full-stack trial, initialize the demo database and run `docker compose up -d --wait`. Open `http://127.0.0.1:8080`; Nginx serves the production frontend and proxies `/api` to the backend container. Run `npm run smoke:release` to verify the frontend, API health and seeded course response. See [the deployment guide](docs/DEPLOYMENT.md) for initialization, limitations and safe shutdown.
+
 React + JavaScript + CSS, triển khai từ [Figma Luma English](https://www.figma.com/design/gsvAsJNez3sPsdk4ErA9ky). Đây là mã nguồn giao diện người dùng (Frontend), ban đầu sử dụng dữ liệu mẫu và hiện đã có dịch vụ Backend API đi kèm tại thư mục `src/backend/` (chi tiết xem tại [Tài liệu Backend](src/backend/README.md)).
 
 Người tiếp tục phát triển: đọc [hướng dẫn bàn giao](docs/HANDOFF.md). Trong code có `TODO(API_...)` chỉ điểm nối backend, `EXTEND(...)` chỉ cách mở rộng và `REUSE(...)` hướng dẫn component/hook dùng chung. Tài liệu gồm model dữ liệu, bản đồ feature, ví dụ sử dụng và cách kiểm tra; các nhãn này là comment, không phải cấu hình bật API.

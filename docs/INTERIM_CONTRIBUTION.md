@@ -17,11 +17,11 @@ Deployment preparation includes an environment example, a reproduction guide, ba
 
 | Check | Measured local result |
 | --- | --- |
-| Isolated Node/domain/API/content tests | 62 passed locally after the 22-lesson expansion |
+| Isolated Node/domain/API/content/deployment tests | 67 passed locally across 11 files |
 | Playwright browser tests | 11 tests configured; the two new final-lesson cases require CI evidence because managed local Edge launch is blocked |
 | Responsive route checks | Existing main-route suite passed at 375, 768, 1024 and 1440 px |
 | Production build | Passed with Vite 8.3.5; warning: main JS chunk exceeds 500 kB |
-| Dependency audit after compatible updates | 0 reported vulnerabilities |
+| Dependency audit | Production dependencies: 0; full development audit: 5 high findings inherited through an unpatched Vite/picomatch toolchain advisory |
 | Local seeded backend | `/api/health` returned status ok; `/api/courses` returned success true |
 | Docker | Linux CI build, schema initialization, seed, startup and health check passed; not installed locally |
 | Hosted deployment | Existing Vercel URL is documented; this branch has not been newly deployed to the team's cloud project |

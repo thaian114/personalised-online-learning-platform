@@ -1,10 +1,10 @@
-# Interim deployment and reproduction
+# Trial deployment and reproduction
 
-Contributor: Kieu Gia Bao (2410236). Scope: reproducible prototype; no new public backend has been provisioned by this change.
+Contributor: Kieu Gia Bao (2410236). Scope: reproducible full-stack trial; no public backend has been provisioned by this change.
 
 ## Actual architecture and deviations
 
-React/Vite builds to `dist/`. Express/Prisma serves the API on port 5000. The current Prisma provider is **SQLite**, not the PostgreSQL proposed in September. The frontend mainly stores demo state in localStorage; Vite proxies `/api` only during development. Setting an invented `VITE_API_URL` variable will not connect the application because the current frontend has no consumer for it.
+React/Vite builds to `dist/`. In the trial stack, Nginx serves that production build on `http://127.0.0.1:8080` and proxies `/api` requests to the Express/Prisma container. The API remains directly available on loopback port 5000 for diagnostics. The current Prisma provider is **SQLite**, not the PostgreSQL proposed in September. The frontend still stores most demo state in localStorage, so service connectivity does not imply complete API/UI integration.
 
 The repository already contains `vercel.json` for SPA fallback and documents `https://luma-english-dath.vercel.app` as its frontend deployment. That URL does not prove that this branch is deployed or that the API is integrated. Record the actual deployment commit and accessible URL after the team publishes this branch.
 
@@ -36,21 +36,27 @@ Demo accounts: `minhanh@example.com` (student), `linhtran@example.com` (instruct
 4. Verify both `/materials/foundations-worksheet.html` and `/materials/everyday-worksheet.html` return worksheet HTML rather than the SPA.
 5. Record the preview URL and commit in the weekly Google Doc. Merge to main only after the team reviews the change and its preview.
 
-## Container prototype
+## Full-stack trial with Docker Compose
 
-Docker/Compose must be installed separately on the local machine. Container build, database initialization, seed and HTTP health check were successfully verified on the GitHub-hosted Linux runner for implementation commit `ec4866a`: [CI evidence](https://github.com/thaian114/personalised-online-learning-platform/actions/runs/41055345233). Local Windows container execution is still untested because Docker is not installed here. The configuration publishes the API on loopback only. It does not serve the frontend; use Vite or the static frontend host separately.
+Docker/Compose must be installed separately. The configuration builds both the production frontend and API, keeps the SQLite file in a named volume, waits for both service health checks, and binds both ports to loopback. Local Windows container execution remains unavailable on the contributor's machine because Docker is not installed; GitHub Actions is the required container evidence.
 
 ```powershell
 docker compose build
 docker compose run --rm api node -e "require('node:fs').closeSync(require('node:fs').openSync('/data/interim.db','a'))"
 docker compose run --rm api npm run prisma:db:push
 docker compose run --rm api npm run prisma:seed
-docker compose up -d
+docker compose up -d --wait
 docker compose ps
-Invoke-RestMethod http://127.0.0.1:5000/api/health
+npm run smoke:release
 ```
 
-The named volume retains the SQLite file. `docker compose down` stops the container without deleting this volume. Back up the database before schema or seed changes. Do not use `down -v` on data that must be retained.
+The smoke command verifies the frontend root page, proxied `/api/health`, and a non-empty `/api/courses` response. Open `http://127.0.0.1:8080` for the frontend; use `http://127.0.0.1:5000/api/health` only for direct API diagnosis.
+
+The named volume retains the SQLite file. `docker compose down` stops both containers without deleting this volume. Back up the database before schema or seed changes. Do not use `down -v` on data that must be retained.
+
+GitHub Actions repeats build, initialization, seed, `docker compose up -d --wait`, and `npm run smoke:release`. It always collects Compose logs and shuts the environment down without deleting the named volume.
+
+The production-dependency audit currently reports zero vulnerabilities. The full development audit reports the unpatched `picomatch` advisory inherited through Vite; do not use `npm audit fix --force`, because npm proposes a breaking Vite downgrade. Recheck the advisory when a patched dependency release becomes available.
 
 ## Release blockers for an internet-facing backend
 
