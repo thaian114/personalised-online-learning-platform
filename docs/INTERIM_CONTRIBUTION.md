@@ -17,7 +17,7 @@ Deployment preparation includes an environment example, a reproduction guide, ba
 
 | Check | Measured local result |
 | --- | --- |
-| Isolated Node/domain/API/content/deployment tests | 68 passed locally across 11 files |
+| Isolated Node/domain/API/content/deployment tests | 69 passed locally across 11 files |
 | Playwright browser tests | 11 tests configured; the two new final-lesson cases require CI evidence because managed local Edge launch is blocked |
 | Responsive route checks | Existing main-route suite passed at 375, 768, 1024 and 1440 px |
 | Production build | Passed with Vite 8.3.5; warning: main JS chunk exceeds 500 kB |

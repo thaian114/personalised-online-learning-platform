@@ -21,6 +21,15 @@ test('interim lessons have valid course/lesson identities and complete English t
   }
 });
 
+test('catalogue lesson titles match the curated teaching content', () => {
+  for (const courseId of ['foundations', 'everyday']) {
+    const course = initialCourses.find((item) => item.id === courseId);
+    for (const lesson of getLessons(course)) {
+      assert.equal(lesson.title, getLessonContent(courseId, lesson.id).en);
+    }
+  }
+});
+
 test('English Foundations has twelve complete lessons with globally unique question ids', () => {
   const lessons = Array.from({ length: 12 }, (_, index) =>
     getLessonContent('foundations', index + 1),

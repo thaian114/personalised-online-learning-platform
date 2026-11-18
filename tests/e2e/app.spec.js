@@ -44,21 +44,24 @@ test('learner completes a lesson, submits quiz answers and keeps the result afte
   await page.getByRole('button', { name: 'Đánh dấu hoàn thành', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Đã hoàn thành', exact: true })).toBeDisabled();
   await page.getByRole('link', { name: 'Làm bài kiểm tra', exact: true }).click();
-  const answers = [1, 2, 1, 2, 1, 2, 1, 2, 2, 1];
+  const answers = [1, 0, 1];
   for (const [index, answer] of answers.entries()) {
     await page.getByRole('radio').nth(answer).check();
     await expect(page.locator('input[type=radio]:checked')).toHaveCount(1);
     await page
-      .getByRole('button', { name: index === 9 ? 'Nộp bài' : 'Câu tiếp theo', exact: true })
+      .getByRole('button', {
+        name: index === answers.length - 1 ? 'Nộp bài' : 'Câu tiếp theo',
+        exact: true,
+      })
       .click();
   }
   await page.getByRole('button', { name: 'Xác nhận nộp bài', exact: true }).click();
-  await expect(page.locator('.score-circle strong')).toHaveText('10 / 10');
+  await expect(page.locator('.score-circle strong')).toHaveText('3 / 3');
   await page.reload();
-  await expect(page.locator('.score-circle strong')).toHaveText('10 / 10');
+  await expect(page.locator('.score-circle strong')).toHaveText('3 / 3');
   await page.getByRole('button', { name: 'Xem lại câu trả lời', exact: true }).click();
   await expect(
-    page.getByText('Với chủ ngữ “she”, động từ “go” thêm -es trong thì hiện tại đơn.'),
+    page.getByText('Study changes to studies with she.'),
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
