@@ -56,6 +56,8 @@ The named volume retains the SQLite file. `docker compose down` stops both conta
 
 GitHub Actions repeats build, initialization, seed, `docker compose up -d --wait`, and `npm run smoke:release`. It always collects Compose logs and shuts the environment down without deleting the named volume.
 
+[GitHub Actions run 44243616468](https://github.com/thaian114/personalised-online-learning-platform/actions/runs/44243616468) verified implementation commit `8830881`: both containers became healthy and the frontend, proxied API health endpoint and seeded course catalogue each returned HTTP 200.
+
 The production-dependency audit currently reports zero vulnerabilities. The full development audit reports the unpatched `picomatch` advisory inherited through Vite; do not use `npm audit fix --force`, because npm proposes a breaking Vite downgrade. Recheck the advisory when a patched dependency release becomes available.
 
 ## Release blockers for an internet-facing backend

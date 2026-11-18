@@ -18,7 +18,7 @@ Deployment preparation includes an environment example, a reproduction guide, ba
 | Check | Measured local result |
 | --- | --- |
 | Isolated Node/domain/API/content/deployment tests | 69 passed locally across 11 files |
-| Playwright browser tests | 11 tests configured; the two new final-lesson cases require CI evidence because managed local Edge launch is blocked |
+| Playwright browser tests | 11 passed on GitHub-hosted Linux, including both final-lesson cases |
 | Responsive route checks | Existing main-route suite passed at 375, 768, 1024 and 1440 px |
 | Production build | Passed with Vite 8.3.5; warning: main JS chunk exceeds 500 kB |
 | Dependency audit | Production dependencies: 0; full development audit: 5 high findings inherited through an unpatched Vite/picomatch toolchain advisory |
@@ -26,7 +26,7 @@ Deployment preparation includes an environment example, a reproduction guide, ba
 | Docker | Linux CI build, schema initialization, seed, startup and health check passed; not installed locally |
 | Hosted deployment | Existing Vercel URL is documented; this branch has not been newly deployed to the team's cloud project |
 
-Evidence commands and coverage are in `TESTING.md`; browser HTML reports are generated locally under ignored `playwright-report/`. [GitHub Actions run 41055345233](https://github.com/thaian114/personalised-online-learning-platform/actions/runs/41055345233) passed both test/build and container jobs for implementation commit `ec4866a`. It contains browser evidence and the deployable `frontend-dist` artifact, retained for 14 days. These results cover the implementation based on commit `894b807`; the follow-up documentation commit records the measured CI evidence without changing runtime code.
+Evidence commands and coverage are in `TESTING.md`; browser HTML reports are generated locally under ignored `playwright-report/`. [GitHub Actions run 44243616468](https://github.com/thaian114/personalised-online-learning-platform/actions/runs/44243616468) passed both test/build and container jobs for implementation commit `8830881`. The run records 69 isolated tests, 11 passing browser tests, a production build, healthy frontend and API containers, and HTTP 200 smoke checks for the frontend, API health and seeded course catalogue. It also contains browser evidence and the deployable `frontend-dist` artifact, retained for 14 days.
 
 ## Demo script (English narration)
 

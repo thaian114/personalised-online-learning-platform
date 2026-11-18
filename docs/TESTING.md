@@ -38,7 +38,7 @@ npm audit --omit=dev --audit-level=high
 ## Changes and findings
 
 - Completed 22 flagship lessons and expanded validation to 69 Node/domain/API/content/deployment tests across 11 files.
-- Added two final-lesson browser cases, bringing the Playwright suite to 11 cases pending CI execution.
+- Added two final-lesson browser cases; all 11 Playwright cases passed in [GitHub Actions run 44243616468](https://github.com/thaian114/personalised-online-learning-platform/actions/runs/44243616468).
 - Fixed a calendar-dependent assignment test: it now sets an explicit past deadline before asserting that a submission is late.
 - The Windows Prisma engine failed when creating an absent SQLite file; the runner now creates each empty file before schema push.
 - CI now runs isolated API/domain/content tests, Chromium E2E, production build and uploads browser evidence for 14 days. Pushes on `codex/**`, main, and PRs to main trigger CI.
